@@ -1,7 +1,13 @@
 $ ->
 
-  rule.bind $ '#template .list'
+  listRule.bind $ '#template .list'
   itemRule.bind $ '#template .item'
 
-  ($ 'body').append rule.build
+  ($ 'body').append listRule.build
     list: [{c: 'hello'}, {b: 'world'}, {}]
+
+  rule.bind $ '#template .person'
+
+  ($ 'body').append rule.build
+    first: 'tim'
+    last: 'etler'
