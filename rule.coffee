@@ -25,16 +25,22 @@ class Rule
     console.log content
     selection = if selector is '.' then element else (element.find selector)
     if (@type content) is 'Array'
-      temp = $('<div>')
-      temp.append item for item in content
-      content = temp.contents()
-    switch position
-      when '-' then selection.before content
-      when '+' then selection.after content
-      when '=' then selection.replaceWith content
-      when '<' then selection.prepend content
-      when '>' then selection.append content
-      else selection.html content
+      if attribute
+        content = content.join()
+      else
+        temp = $('<div>')
+        temp.append item for item in content
+        content = temp.contents()
+    if attribute
+      selection.attr attribute, content
+    else
+      switch position
+        when '-' then selection.before content
+        when '+' then selection.after content
+        when '=' then selection.replaceWith content
+        when '<' then selection.prepend content
+        when '>' then selection.append content
+        else selection.html content
   type: (object) ->
     regex = /\[object ([^\]]+)\]/
     ((Object::toString.call object).match regex)?[1]
