@@ -1,0 +1,20 @@
+// rule.js
+// -------
+// selector based rules
+// only selectors on the left
+// Recursive and nestable
+// can be nested with additional rules objects, objects, lists, elements, or literals
+// arrays will be iterated on and appended together
+// use coffeescript for all more complicated functionality (loops, recursion, etc)
+
+// Rule object methods
+// -------------------
+// new Rule(rule): create a new Rule based on the rule object given in
+// Rule.build(data): build an html element with the given data
+// Rule.bind(template): bind the rule to a template jquery dom element
+
+// Right Hand Types
+// ----------------
+// Function: execute function bound with the data as the context and parse result
+// Array: iterate through array and join parsed contents
+// Object: compile into rule object and execute with same data context
