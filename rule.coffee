@@ -8,7 +8,7 @@ class Rule
       @selector = selector
       result = @parse rule
       delete @selector
-      @add selector, element, result
+      if result? then @add selector, element, result
     delete @data
     element[0]
   parse: (rule) ->
@@ -19,11 +19,8 @@ class Rule
       when 'Object' then $(((new Rule rule).bind @template.find @selector).build @data).children()
       else rule
   add: (selector, element, content) ->
-    [selector, attribute, position] = (selector.match /([^@]*[^-+=<>@])@?([^-+=<>]+)?([-+=<>])?/)[1..3]
-    console.log selector
-    console.log element
-    console.log content
-    selection = if selector is '.' then element else (element.find selector)
+    [selector, attribute, position] = (selector.match /([^-+=<>@]*(?:[^@]*[^-+=<>@])*)@?([^-+=<>]+)?([-+=<>])?/)[1..3]
+    selection = if selector is '' then element else (element.find selector)
     if (@type content) is 'Array'
       if attribute
         content = content.join()

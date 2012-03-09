@@ -1,7 +1,9 @@
 {exec} = require 'child_process'
 
-task 'build', 'build rule.js', ->
-  exec 'coffee --compile rule.coffee'
+option '-w', '--watch', 'watch scripts for changes and rerun commands'
 
-task 'test', 'build rule.js ', ->
-  exec 'coffee -j test/rule.js -c rule.coffee test/template.coffee test/init.coffee'
+task 'build', 'build rule.js', (options) ->
+  exec 'coffee '+(if options.watch is true then '-w ' else '')+'--compile rule.coffee'
+
+task 'test', 'build rule.js ', (options) ->
+  exec 'coffee '+(if options.watch is true then '-w ' else '')+'-j test/rule.js -c rule.coffee test/template.coffee test/init.coffee'

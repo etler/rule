@@ -9,14 +9,12 @@ book = new Rule
       '.first': ->@author.first
       '.last': ->@author.last
 
-
-
 # Iteration Example
 itemRule = new Rule
   '.content': ->@a ? @b ? @c ? 'default'
 
 listRule = new Rule
-  '.': ->itemRule.build item for item in @list
+  '': ->itemRule.build item for item in @list
 
 # Recursion Example
 recursive = new Rule
