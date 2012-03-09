@@ -3,11 +3,13 @@ $ ->
   ($ 'body').append simple.build
     content: 'test'
 
-  rule.bind $ '#template > .person'
+  book.bind $ '#template > .book'
 
-  ($ 'body').append rule.build
-    first: 'tim'
-    last: 'etler'
+  ($ 'body').append book.build
+    title: 'The Hobbit'
+    author:
+      first: 'J. R. R.'
+      last: 'Tolkien'
 
   listRule.bind $ '#template > .list'
   itemRule.bind $ '#template > .list > .item'

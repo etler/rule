@@ -32,7 +32,11 @@ class Rule
         temp.append item for item in content
         content = temp.contents()
     if attribute
-      selection.attr attribute, content
+      selection.attr attribute,
+        switch position
+          when '-' then content + (selection.attr attribute)
+          when '+' then (selection.attr attribute) + content
+          else content
     else
       switch position
         when '-' then selection.before content

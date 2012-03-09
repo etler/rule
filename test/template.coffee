@@ -2,10 +2,14 @@ simple = new Rule
   '.content': ->@content
 
 # Embedded Object Example
-rule = new Rule
-  '.name':
-    '.first': ->@first
-    '.last': ->@last
+book = new Rule
+  '.title': ->@title
+  '.author':
+    '.name':
+      '.first': ->@author.first
+      '.last': ->@author.last
+
+
 
 # Iteration Example
 itemRule = new Rule
