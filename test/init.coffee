@@ -41,3 +41,9 @@ $ ->
             ]
         }
       ]
+
+  func.bind $ '#template > .function'
+  ($ 'body').append func.build()
+
+  rule.bind $ '#template > .rule'
+  ($ 'body').append rule.build()

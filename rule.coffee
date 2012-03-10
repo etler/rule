@@ -1,3 +1,4 @@
+@.Rule =
 class Rule
   constructor: (rule) ->
     @rule = rule
@@ -15,8 +16,9 @@ class Rule
     switch @type rule
       when 'Function' then @parse (_.bind rule, @data)()
       when 'Array' then @parse item for item in rule
-      when 'String' then rule.toString()
+      when 'Rule' then if rule.template? then rule.build @data else @parse rule.rule
       when 'Object' then $(((new Rule rule).bind @template.find @selector).build @data).children()
+      when 'String' then rule.toString()
       else rule
   add: (selector, element, content) ->
     [selector, attribute, position] = (selector.match /([^-+=<>@]*(?:[^@]*[^-+=<>@])*)@?([^-+=<>]+)?([-+=<>])?/)[1..3]
@@ -43,8 +45,14 @@ class Rule
         when '>' then selection.append content
         else selection.html content
   type: (object) ->
-    regex = /\[object ([^\]]+)\]/
-    ((Object::toString.call object).match regex)?[1]
+    if object instanceof Rule
+      'Rule'
+    else
+      regex = /\[object ([^\]]+)\]/
+      ((Object::toString.call object).match regex)?[1]
   bind: (template) ->
     @template = template
+    @
+  unbind: ->
+    delete @template
     @

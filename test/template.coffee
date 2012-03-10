@@ -20,3 +20,14 @@ listRule = new Rule
 recursive = new Rule
   '.location': ->@location
   '.list=': ->if @list then recursive.build item for item in @list
+
+# Function Example
+inner = -> 'inner'
+func = new Rule
+  '.a': -> inner
+
+# Rule Example
+other = new Rule
+  '.b': 'c'
+rule = new Rule
+  '.a': other
