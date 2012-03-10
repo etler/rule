@@ -43,13 +43,13 @@ Reap the rewards.
 
 How
 ---
-###Rule
+###Rules
 The Rule constructor takes an object.
 
     rule = new Rule
       '.data': ->@content
 
-####Key
+####Keys
 The key is a selector for the element to populate.
 
     '.data'
@@ -63,17 +63,18 @@ You can add a position to point where to add the data to.
     '.data@type+'
 
 #####Positions
-**'-'**: jQuery's 'before' or concatenate before for attributes
+**-**: jQuery's 'before' or concatenate before for attributes
 
-**'+'**: jQuery's 'after' or concatenate after for attributes
+**+**: jQuery's 'after' or concatenate after for attributes
 
-**'='**: jQuery's 'replaceWith'
+**=**: jQuery's 'replaceWith'
 
-**'<'**: jQuery's 'prepend'
+**<**: jQuery's 'prepend'
 
-**'>'**: jQuery's 'append'
+**>**: jQuery's 'append'
 
-####Value
+####Values
+Rules can have a variety of values.
 #####Functions
 The value can be a function. The 'this' context is the data, and its return value gets parsed again.
 
