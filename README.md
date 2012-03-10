@@ -1,15 +1,171 @@
 rule.js
 =======
+*functional coffeescript templating*
 
     rule = new Rule
-      '.title': ->@title ? 'no title'
+      '.title': ->@title ? 'rule.js'
       '.description': ['rule.js ', 'is ', 'a ', 'templating ', 'library.']
 
-rule.js is a templating library that uses an object definition to map values to selectors. The object keys are special selector definitions that also allow for selecting attributes, and specifying where new data should be placed. The values can be a function that return a value, an array that is iterated and appended, another Rule, or a string or DOMElement that is used as is.
 
-This syntax was inspired by Pure, a templating library that also uses object keys as selectors. The key difference is that rule.js does not attempt to parse value strings, and instead uses javascript functions to establish mapping values. With coffeescript syntax the functions become very concise and easy to read, while retaining all the power and flexibility that they bring, and at the same time limits their scope.
+What
+----
+###Rule
+Choose where your data goes and how...
 
-Using the syntax of coffeescript rule.js can do conditionals, iteration, recursion, and variable checking in a simple and concise way.
+    rule = new Rule
+      '.data': ->@content
+
+###Template
+Use whatever DOM object you want, made however you want...
+
+    <div class="template">
+      <span class="data">
+      </span>
+    </div>
+
+    dom = $('.template')
+    rule.bind(dom)
+
+
+###Execution
+Build the populated template with the data you pass it...
+
+    rule.build
+      content: 'a string'
+
+Reap the rewards.
+
+    <div class="template">
+      <span class="data">
+        'a string'
+      </span>
+    </div>
+
+How
+---
+###Rule
+The Rule constructor takes an object.
+
+    rule = new Rule
+      '.data': ->@content
+
+####Key
+The key is a selector for the element to populate.
+
+    '.data'
+
+You can add @[attribute] to select the attribute within the selector.
+
+    '.data@type'
+
+You can add a position to point where to add the data to.
+
+    '.data@type+'
+
+#####Positions
+**'-'**: jQuery's 'before' or concatenate before for attributes
+
+**'+'**: jQuery's 'after' or concatenate after for attributes
+
+**'='**: jQuery's 'replaceWith'
+
+**'<'**: jQuery's 'prepend'
+
+**'>'**: jQuery's 'append'
+
+####Value
+#####Functions
+The value can be a function. The 'this' context is the data, and its return value gets parsed again.
+
+    '.data': ->@content
+
+You can do whatever coffeescript can do
+
+    '.data': ->@content ? 'default'
+
+Conditionals...
+
+    '.data': ->if @hidden then 'hidden' else 'show'
+
+Loops...
+
+    '.data': ->item for item in @list
+
+Even another function...
+
+    '.data': -> ->'inner'
+
+#####Arrays
+Each element in an array is concatenated together, before being added
+
+    '.data': ['R','U','L','E']
+
+The values in the array can be anything
+
+    '.data': [->@a,->@b,->@c]
+
+A Function can return an array
+
+    '.data': ->item for item in @list
+
+It can be processed by another rule first
+
+    '.data': ->itemRule.build item for item in @list
+
+#####Objects
+You can have an object within the object. It is made into a new rule and the parent selector is the template root.
+
+    '.data':
+      '.inner': ->@content
+
+#####Everything Else
+Whatever other data is just added as is, if it's a string, or DOMElement, or whatever.
+
+###Template
+The template can be whatever DOM object you want.
+
+    <div class="template">
+      <span class="content">
+      </span>
+    </div>
+    dom = $('.template')
+
+Just turn it into a jQuery DOM object, and you're good to go.
+    rule.bind(dom)
+
+You need to tell your Rule what DOM object to use.
+
+###Execution
+Pass whatever data you want to your Rule.
+
+    rule.build
+      content: 'a string'
+
+A DOM element will be returned.
+
+    <div class="template">
+      <span class="data">
+        'a string'
+      </span>
+    </div>
+
+If the data isn't there, it's just ignored
+
+  rule.build()
+
+Or choose how you want to react.
+
+  '.data=' ->@content ? ''
+
+The data class element is replaced with an empty string.
+
+    <div class="template">
+    </div>
+
+Why
+---
+With rule you can seperate your DOM from your mappings, from your data. With generic selectors you can change your DM structure, and keep the same mappings, or change the mappings for a new data type and keep the same structure. They are no longer tied together, and you can use them how you like. With coffeescript you can have succinct code, with infinite power. Just use it wisely.
+
 
 Rule Object methods
 -------------------
@@ -19,28 +175,6 @@ Rule Object methods
 
 **Rule.bind(template):** bind the rule to a jquery dom element to use as the template.
 
-Left Hand Selectors
--------------------
-The key part of the object sent to rule.js is a CSS3 selector with some additional options on top in the format:
-`(selector)[@attribute][position]`
-
-**Selector:** Any CSS3 Selector, or an empty string to reference the template root
-
-**Attribute:** An accessor to set an attribute on the selected element
-
-**Position:** - + = < or > corresponding to before after replaceWith prepend or append jQuery methods. The default action is to replace the contents. With attributes only - and + are supported, for concatenating before and after the attribute. Replace is default.
-
-Right Hand Value Types
-----------------
-**Function:** execute function bound with the data as the context and parse result.
-
-**Array:** iterate through array and join parsed contents.
-
-**Object:** compile into rule object and execute with same data context.
-
-**String:** Used as is.
-
-**DOMElement:** Used as is.
 
 Examples
 --------
@@ -138,3 +272,7 @@ Examples
               ]
           }
         ]
+
+Thanks
+------
+Thanks to [Pure](http://beebole.com/pure/) for providing the inspiration.
