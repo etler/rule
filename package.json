@@ -1,0 +1,17 @@
+{
+  "name" : "Rule",
+  "version" : "v0.0.1",
+  "description" : "Coffeescript friendly css selector based templating",
+  "keywords" : [ "coffeescript", "templating", "css", "selector", "mapping", "pure" ],
+  "homepage" : "http://www.rulejs.com",
+  "author" : "Tim Etler <tmetler@gmail.com> (http://www.timetler.com)",
+  "files" : [ "rule.coffee" ],
+  "repository" :
+    { "type" : "git"
+    , "url" : "git@github.com:etler/Rule.git"
+    },
+  "dependencies" :
+    { "underscore" : "*"
+    , "jquery" : "*"
+    }
+}
