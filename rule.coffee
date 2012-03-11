@@ -20,39 +20,40 @@ class Rule
         if attribute
           if content.join? then content = content.join('')
           selection.attr attribute,
-            switch position
-              when '-' then content + (selection.attr attribute)
-              when '+' then (selection.attr attribute) + content
-              else content
+            if position is '-'
+              content + (selection.attr attribute)
+            else if position is '+'
+              (selection.attr attribute) + content
+            else content
         else
           if content.reduce
             content = (content.reduce ((container, content) -> container.append content), $ '<div>').html()
-          switch position
-            when '-' then selection.before content
-            when '+' then selection.after content
-            when '=' then selection.replaceWith content
-            when '<' then selection.prepend content
-            when '>' then selection.append content
-            else selection.html content
+          if position is '-'
+            selection.before content
+          else if position is '+'
+            selection.after content
+          else if position is '='
+            selection.replaceWith content
+          else if position is '<'
+            selection.prepend content
+          else if position is '>'
+            selection.append content
+          else selection.html content
     delete @data
     element
   parse: (rule) ->
-    type =
-      if rule instanceof HTMLElement
-        'HTMLElement'
-      else if rule instanceof $
-        '$'
-      else if rule instanceof Rule
-        'Rule'
-      else
-        (Object::toString.call rule).slice 8, -1
-    switch type
-      when 'Function' then @parse rule.call @data
-      when 'Array'    then @parse item for item in rule
-      when 'Rule'     then (if rule.template? then rule.build @data else @parse rule.rule)
-      when 'Object'   then $(((new Rule rule).bind @selection).build @data).html()
-      when 'HTMLElement', '$', 'Undefined', 'Null' then rule
-      else rule.toString()
+    if rule instanceof Function
+      @parse rule.call @data
+    else if rule instanceof Array
+      @parse item for item in rule
+    else if rule instanceof Rule
+      if rule.template? then rule.build @data else @parse rule.rule
+    else if rule instanceof HTMLElement or rule instanceof $ or !rule?
+      rule
+    else if rule.toString isnt Object::toString
+      rule.toString()
+    else
+      $(((new Rule rule).bind @selection).build @data).html()
   bind: (template) ->
     @template = template
     @
