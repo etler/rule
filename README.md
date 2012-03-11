@@ -277,13 +277,12 @@ Examples
 Requirements
 ------------
 A Selector library that implements the following
+
     .after
     .append
     .attr
     .before
-    .children
     .clone
-    .contents
     .find
     .html
     .prepend

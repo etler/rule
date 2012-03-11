@@ -14,22 +14,24 @@ class Rule
     element[0]
   parse: (rule) ->
     switch @type rule
-      when 'Function' then @parse (rule.bind @data)()
+      when 'Function' then @parse rule.call @data
       when 'Array' then @parse item for item in rule
       when 'Rule' then (if rule.template? then rule.build @data else @parse rule.rule)
-      when 'Object' then $(((new Rule rule).bind @template.find @selector).build @data).children()
-      when 'String' then rule.toString()
-      else rule
+      when 'Object' then $(((new Rule rule).bind @template.find @selector).build @data).html()
+      when 'HTMLElement', 'Undefined', 'Null' then rule
+      else rule.toString()
   add: (selector, element, content) ->
-    [selector, attribute, position] = (selector.match /([^-+=<>@]*(?:[^@]*[^-+=<>@])*)@?([^-+=<>]+)?([-+=<>])?/)[1..3]
+    if position = (selector.slice -1).match /[-+=<>]/
+      selector = selector.slice(0,-1)
+    [selector, attribute] = selector.split('@', 2)
     selection = if selector is '' then element else (element.find selector)
-    if (@type content) is 'Array'
+    if content instanceof Array
       if attribute
         content = content.join()
       else
         temp = $('<div>')
         temp.append item for item in content
-        content = temp.contents()
+        content = temp.html()
     if attribute
       selection.attr attribute,
         switch position
@@ -45,11 +47,12 @@ class Rule
         when '>' then selection.append content
         else selection.html content
   type: (object) ->
-    if object instanceof Rule
+    if object instanceof HTMLElement
+      'HTMLElement'
+    else if object instanceof Rule
       'Rule'
     else
-      regex = /\[object ([^\]]+)\]/
-      ((Object::toString.call object).match regex)?[1]
+      (Object::toString.call object).slice 8, -1
   bind: (template) ->
     @template = template
     @
