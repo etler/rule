@@ -4,21 +4,21 @@ class Rule
     @rule = rule
   build: (data) =>
     @data = data ? {}
-    element = @template.clone()
+    element = $(@template[0].cloneNode(true))
     for selector, rule of @rule
       @selector = selector
       result = @parse rule
       delete @selector
       if result? then @add selector, element, result
     delete @data
-    element[0]
+    element
   parse: (rule) ->
     switch @type rule
       when 'Function' then @parse rule.call @data
       when 'Array' then @parse item for item in rule
       when 'Rule' then (if rule.template? then rule.build @data else @parse rule.rule)
+      when 'HTMLElement', '$', 'Undefined', 'Null' then rule
       when 'Object' then $(((new Rule rule).bind @template.find @selector).build @data).html()
-      when 'HTMLElement', 'Undefined', 'Null' then rule
       else rule.toString()
   add: (selector, element, content) ->
     if position = (selector.slice -1).match /[-+=<>]/
@@ -49,6 +49,8 @@ class Rule
   type: (object) ->
     if object instanceof HTMLElement
       'HTMLElement'
+    else if object instanceof $
+      '$'
     else if object instanceof Rule
       'Rule'
     else

@@ -276,13 +276,12 @@ Examples
 
 Requirements
 ------------
-A Selector library that implements the following
+jQuery, Zepto, or a library that implements the following
 
     .after
     .append
     .attr
     .before
-    .clone
     .find
     .html
     .prepend
