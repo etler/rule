@@ -14,7 +14,7 @@ class Rule
     element[0]
   parse: (rule) ->
     switch @type rule
-      when 'Function' then @parse (_.bind rule, @data)()
+      when 'Function' then @parse (rule.bind @data)()
       when 'Array' then @parse item for item in rule
       when 'Rule' then (if rule.template? then rule.build @data else @parse rule.rule)
       when 'Object' then $(((new Rule rule).bind @template.find @selector).build @data).children()

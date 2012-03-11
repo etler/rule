@@ -274,6 +274,21 @@ Examples
           }
         ]
 
+Requirements
+------------
+A Selector library that implements the following
+    .after
+    .append
+    .attr
+    .before
+    .children
+    .clone
+    .contents
+    .find
+    .html
+    .prepend
+    .replaceWith
+
 Thanks
 ------
 Thanks to [Pure](http://beebole.com/pure/) for providing the inspiration.
