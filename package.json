@@ -8,10 +8,7 @@
   "files" : [ "rule.coffee" ],
   "repository" :
     { "type" : "git"
-    , "url" : "git@github.com:etler/Rule.git"
-    },
+    , "url" : "git@github.com:etler/Rule.git" },
   "dependencies" :
-    { "underscore" : "*"
-    , "jquery" : "*"
-    }
+    { "jquery" : "*" }
 }
