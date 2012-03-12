@@ -172,10 +172,17 @@ Rule Object methods
 -------------------
 **new Rule(rule):** create a new Rule based on the rule object given in.
 
-**Rule.build(data):** build an html element with the given data.
+**.build(data, [template]):** build an html element with the given data.
 
-**Rule.bind(template):** bind the rule to a jquery dom element to use as the template.
+**.bind(template):** bind the rule to a jquery dom element to use as the template.
 
+Rule Static methods
+---------------------
+**Rule.split(selector):** takes a rule selector string and splits it into an array of [selector, attribute, position].
+
+**Rule.parse(rule, data, selection):** takes the rule object binding and returns the data bound content based on its type.
+
+**Rule.add(content, selection, [attribute], [position]):** adds content to a selection or its attribute at the given position.
 
 Examples
 --------
