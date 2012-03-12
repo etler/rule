@@ -5,6 +5,7 @@ class Rule
   # Map the data object to the template and return a new element populated with data
   build: (data, template) ->
     template ?= @template
+    if not template instanceof $ then template = $(template)
     # Use cloneNode instead of clone to support zepto
     element = $(@template?[0].cloneNode(true))
     for selector, rule of @rule
