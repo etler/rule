@@ -113,14 +113,34 @@ It can be processed by another rule first
 
     '.data': ->itemRule.build item for item in @list
 
+#####Rules
+A rule can be another rule.
+
+
+If it has a template, it will render with that.
+
+
+If it doesn't, it will use the current position in the template as its template
+
+
 #####Objects
 You can have an object within the object. It is made into a new rule and the parent selector is the template root.
 
     '.data':
       '.inner': ->@content
 
-#####Everything Else
-Whatever other data is just added as is, if it's a string, or DOMElement, or whatever.
+#####HTML Elements and jQuery objects
+The passed in object will be added as it is.
+
+#####Objects with toString
+An object that overrides toString will have their toString method called.
+
+
+Some objects that override toString are Strings, Numbers, and Booleans.
+
+
+They can also be your own.
+
 
 ###Template
 The template can be whatever DOM object you want.

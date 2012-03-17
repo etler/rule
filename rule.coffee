@@ -1,46 +1,53 @@
 @.Rule =
 class Rule
+  # Build a new rule with a rule object
   constructor: (rule) ->
     @rule = rule
-  # Map the data object to the template and return a new element populated with data
-  build: (data, template) ->
+
+  # Map the data object to the template and return a new
+  # element populated with data Takes data and an optional template
+  render: (data, template) ->
     template ?= @template
-    if not template instanceof $ then template = $(template)
+    template = $(template) if not (template instanceof $)
     # Use cloneNode instead of clone to support zepto
-    element = $(@template?[0].cloneNode(true))
+    element = $(template[0].cloneNode(true))
     for selector, rule of @rule
       [selector, attribute, position] = Rule.split selector
+      # Empty selector selects the template root
       selection = if selector is '' then element else element.find selector
       Rule.add (Rule.parse rule, data, selection), selection, attribute, position
       # Add the content to the element, do nothing if content is undefined
     return element
-  # Set the rule's template
-  bind: (template) ->
-    @template = template
-    return @
-  # Unset the rule's template
-  unbind: ->
-    delete @template
-    return @
+
   # Parse the rule to get the content object
   @parse: (rule, data, selection) =>
     # If statments are used throughout instead of switches
     # because they compile to smaller javascript
     # Bind the function to the data and parse its results
-    if rule instanceof Function then Rule.parse (rule.call data), data, selection
+    if rule instanceof Function
+      Rule.parse (rule.call data), data, selection
     # Parse each item in the array and return the array
-    else if rule instanceof Array then Rule.parse item, data, selection for item in rule
-    # Pass the data to the rule object, or if the rule object
-    # is not bound parse on the underlying rule's rule
-    else if rule instanceof Rule then (if rule.template? then rule.build data else Rule.parse rule.rule, data, selection)
+    else if rule instanceof Array
+      Rule.parse item, data, selection for item in rule
+    # Pass the data to the rule object, if the rule object
+    # does not have a template then use the current selection
+    # as the template and return its contents
+    else if rule instanceof Rule
+      if rule.template? then rule.render data else (rule.render data, selection).html()
     # Return objects that can be added to the dom directly as is
     # If null or undefined return as is to be ignored
-    else if rule instanceof HTMLElement or rule instanceof $ or !rule? then rule
+    else if rule instanceof HTMLElement or rule instanceof $ or !rule? or rule is true or rule is false
+      rule
     # If the object has a custom toString then use it
-    else if rule.toString isnt Object::toString then rule.toString()
+    else if rule.toString isnt Object::toString
+      rule.toString()
     # If the object does not have a custom toString
     # create a new rule from the object
-    else $(((new Rule rule).bind selection).build data).html()
+    else
+      $((new Rule rule).render data, selection).html()
+
+  # Add a content object to a selection or attribute
+  # of a selection at the position specified
   @add: (content, selection, attribute, position) =>
     if content?
       # Attribute is specified, so modify attribute
@@ -64,6 +71,7 @@ class Rule
         else if position is '>' then selection.append content
         else selection.html content
     return selection
+
   # Parse the selector for selection, position and attribute
   @split: (selector) =>
     selector = selector[0...-1] if position = (selector[-1...].match /[-+=<>]/)?[0]

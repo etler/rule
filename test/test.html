@@ -1,47 +1,23 @@
 <html>
 <head>
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-  <script type="text/javascript" src="rule.js"></script>
-  <style type="text/css">
-    #template {
-      display: none;
-    }
-  </style>
+  <meta charset="utf-8">
+  <title>Mocha Tests</title>
+  <script src="../rule.js"></script>
+  <link rel="stylesheet" href="https://raw.github.com/visionmedia/mocha/master/mocha.css" />
+  <script src="https://raw.github.com/madrobby/zepto/master/src/zepto.js"></script>
+  <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+  <script src="https://raw.github.com/LearnBoost/expect.js/master/expect.js"></script>
+  <script src="https://raw.github.com/visionmedia/mocha/master/mocha.js"></script>
+  <script>mocha.setup('bdd')</script>
+  <script src="test.js"></script>
+  <script>
+    $(function(){
+      mocha
+        .run()
+    })
+  </script>
 </head>
 <body>
-  <div id="template">
-    <!-- Simple Example -->
-    <div class="simple">
-      <span class="content">content</span>
-    </div>
-    <!-- List Example -->
-    <ul class="list">
-      <li class="item"><span class="content"></span></li>
-    </ul>
-    <!-- Book Example -->
-    <div class="book">
-      <h1 class="title"></h1>
-      <div class="author">
-        <div class="name">
-          <span class="first"></span>
-          <span class="last"></span>
-        </div>
-      </div>
-    </div>
-    <!-- Recursive Example -->
-    <ul class="recursive">
-      <li class="location"></li>
-      <div class="list"></div>
-    </ul>
-    <div class="function">
-      <span class="a"></span>
-    </div>
-    <div class="rule">
-      <div class="a">
-        <span class="b"></span>
-      </div>
-    </div>
-
-  </div>
+  <div id="mocha"></div>
 </body>
 </html>
