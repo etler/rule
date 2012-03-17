@@ -6,18 +6,22 @@ class Rule
 
   # Map the data object to the template and return a new
   # element populated with data Takes data and an optional template
-  render: (data, template) ->
-    template ?= @template
-    template = $(template) if not (template instanceof $)
+  render: (data, element) ->
+    element ?= @template
+    element = $ element if not (element instanceof $)
     # Use cloneNode instead of clone to support zepto
-    element = $(template[0].cloneNode(true))
+    element = $ element[0].cloneNode true if @template?
+    # Insure element is always within a container to support modification on the root element
+    container = ($ '<div>').append element if element.parent().length is 0
     for selector, rule of @rule
       [selector, attribute, position] = Rule.split selector
-      # Empty selector selects the template root
+      # Empty selector selects the root element
       selection = if selector is '' then element else element.find selector
       Rule.add (Rule.parse rule, data, selection), selection, attribute, position
-      # Add the content to the element, do nothing if content is undefined
-    return element
+      # If the element does not have a parent, it has been removed from the dom,
+      # and all modifications on it will be trown away
+      if element.parent().length is 0 then break
+    return container?.html()
 
   # Parse the rule to get the content object
   @parse: (rule, data, selection) =>

@@ -8,5 +8,7 @@ task 'build', 'build rule.js', (options) ->
 
 task 'test', 'build rule.js ', (options) ->
   invoke 'build'
-  child = exec 'coffee '+(if options.watch is true then '-w ' else '')+'-j test/test.js -c test/test.coffee'
-  child.stdout.on 'data', (data) -> console.log data
+  test = exec 'coffee '+(if options.watch is true then '-w ' else '')+' -c test/test.coffee'
+  test.stdout.on 'data', (data) -> console.log data
+  example = exec 'coffee '+(if options.watch is true then '-w ' else '')+' -c test/example.coffee'
+  example.stdout.on 'data', (data) -> console.log data
