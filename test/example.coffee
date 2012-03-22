@@ -1,8 +1,23 @@
+console.time('example')
 rule = new Rule
   'select':
-    '=': -> if not @options? then ''
-    'option': -> option for option in @options
+    '=': -> '<select>'
+    '@test': 'attribute'
+    '': '<option>test</option>'
   '<': 'test'
-template = $('''<div><select><option></option></select></div>''')
+template = $('<div><select><option>bad</option></select></div>')
 rule.template = template
-$('body').append rule.render({})
+$('body').append rule.render {}
+console.timeEnd('example')
+
+console.time('example2')
+rule = new Rule
+  '-': 'a'
+  '+': 'e'
+  '' : 'c'
+  '<': 'b'
+  '>': 'd'
+template = $('<span></span>')
+rule.template = template
+$('body').append rule.render {}
+console.timeEnd('example2')

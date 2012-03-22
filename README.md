@@ -303,16 +303,21 @@ Examples
 
 Requirements
 ------------
-jQuery, Zepto, or a library that implements the following
+jQuery, or a library that implements the following
 
-    .after
-    .append
-    .attr
-    .before
-    .find
-    .html
-    .prepend
-    .replaceWith
+  .add
+  .append
+  .appendTo
+  .attr
+  .contents
+  .empty
+  .find
+  .insertAfter
+  .insertBefore
+  .parent
+  .prependTo
+  .render
+  .replaceAll
 
 Thanks
 ------

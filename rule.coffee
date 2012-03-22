@@ -4,24 +4,30 @@ class Rule
   constructor: (rule) ->
     @rule = rule
 
-  # Map the data object to the template and return a new
-  # element populated with data Takes data and an optional template
+  # Map the data object to the template and return a new element populated with data
+  # Optionally takes an element and applies modifications directly to that element
   render: (data, element) ->
-    element ?= @template
-    element = $ element if not (element instanceof $)
-    # Use cloneNode instead of clone to support zepto
-    element = $ element[0].cloneNode true if @template?
+    # Set element to a copy of the template if it is not already set
+    element = $ (element ?= ($ @template)[0].cloneNode(true))
     # Insure element is always within a container to support modification on the root element
-    container = ($ '<div>').append element if element.parent().length is 0
+    ($ '<div>').append(element) if not element.parent().length
+    # scope is used to encapsulate any content added outside of the main element
+    scope = element
     for selector, rule of @rule
       [selector, attribute, position] = Rule.split selector
       # Empty selector selects the root element
       selection = if selector is '' then element else element.find selector
-      Rule.add (Rule.parse rule, data, selection), selection, attribute, position
-      # If the element does not have a parent, it has been removed from the dom,
-      # and all modifications on it will be trown away
-      if element.parent().length is 0 then break
-    return container?.html()
+      # Add will return the elements that were added to the selection
+      selection = Rule.add (Rule.parse rule, data, selection), selection, attribute, position
+      # If we are manipulating the root template element and siblings
+      if selector is '' and position in ['=','+','-']
+        # Increase the scope for manipulated siblings
+        scope = scope.add selection
+        if position is '='
+          scope = scope.not element
+          # If we replaced the element then it should become the new content
+          element = selection
+    return scope
 
   # Parse the rule to get the content object
   @parse: (rule, data, selection) =>
@@ -35,9 +41,9 @@ class Rule
       Rule.parse item, data, selection for item in rule
     # Pass the data to the rule object, if the rule object
     # does not have a template then use the current selection
-    # as the template and return its contents
+    # and apply changes directly to it. Return undefined in that case so
     else if rule instanceof Rule
-      if rule.template? then rule.render data else (rule.render data, selection).html()
+      if rule.template? then rule.render data else rule.render data, selection; undefined
     # Return objects that can be added to the dom directly as is
     # If null or undefined return as is to be ignored
     else if rule instanceof HTMLElement or rule instanceof $ or !rule? or rule is true or rule is false
@@ -48,33 +54,33 @@ class Rule
     # If the object does not have a custom toString
     # create a new rule from the object
     else
-      $((new Rule rule).render data, selection).html()
+      Rule.parse (new Rule rule), data, selection
 
   # Add a content object to a selection or attribute
   # of a selection at the position specified
   @add: (content, selection, attribute, position) =>
-    if content?
-      # Attribute is specified, so modify attribute
-      if attribute
-        content = content.join('') if content.join?
-        selection.attr attribute,
-          if position is '-' then content + (selection.attr attribute)
-          else if position is '+' then (selection.attr attribute) + content
-          else content
-      # Attribute not specified so modify selected element
-      else
-        # Concatenate array content into one object
-        if content.reduce
-          # Appending to a div is insted of after to an empty $() because zepto does not support that
-          content = (content.reduce ((container, content) -> container.append content), $ '<div>').html()
-        # Add the content to various positions
-        if position is '-' then selection.before content
-        else if position is '+' then selection.after content
-        else if position is '=' then selection.replaceWith content
-        else if position is '<' then selection.prepend content
-        else if position is '>' then selection.append content
-        else selection.html content
-    return selection
+    return selection if not (content?)
+    # Attribute is specified, so modify attribute
+    if attribute
+      content = content.join('') if content.join?
+      selection.attr attribute,
+        if position is '-' then content + (selection.attr attribute)
+        else if position is '+' then (selection.attr attribute) + content
+        else content
+    # Attribute not specified so modify selected element
+    else
+      # Concatenate array content into one object
+      if content.reduce
+        # Appending to a div is insted of after to an empty $() because zepto does not support that
+        content = (content.reduce ((container, content) -> container.append content), $ '<div>').contents()
+      content = (container = ($ '<div>').append content).contents()
+      # Add the content to various positions
+      if position is '-' then content.insertBefore selection
+      else if position is '+' then content.insertAfter selection
+      else if position is '=' then content.replaceAll selection
+      else if position is '<' then content.prependTo selection
+      else if position is '>' then content.appendTo selection
+      else content.appendTo selection.empty()
 
   # Parse the selector for selection, position and attribute
   @split: (selector) =>

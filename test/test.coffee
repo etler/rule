@@ -40,7 +40,9 @@ describe 'Rule', ->
       rule = new Rule
         '.a': ->@
       selection = $ '<div><span class="a"></div>'
-      expect(asString Rule.parse rule, 'b', selection).to.be.eql asString $ '<span class="a">b</span>'
+      Rule.parse rule, 'b', selection
+      expect(asString selection).to.be.equal asString $ '<div><span class="a">b</div>'
+      selection = $ '<div><span class="a"></div>'
       rule.template = selection
       expect(asString Rule.parse rule, 'b').to.be.eql asString $ '<div><span class="a">b</span></div>'
     it "should return the passed in HTMLElement", ->
@@ -69,7 +71,8 @@ describe 'Rule', ->
       rule =
         '.a': ->@
       selection = $ '<div><span class="a"></div>'
-      expect(asString Rule.parse rule, 'b', selection).to.be.eql asString $ '<span class="a">b</span>'
+      Rule.parse rule, 'b', selection
+      expect(asString selection).to.be.eql asString $ '<div><span class="a">b</div>'
   describe '::add', ->
     it "should prepend the attribute with content", ->
       e = $('<div class="b">')
@@ -80,28 +83,45 @@ describe 'Rule', ->
     it "should set the attribute to content", ->
       e = $('<div class="b">')
       expect(asString Rule.add 'a', e, 'class').to.be.eql asString $('<div class="a">')
-      e = $('<div class="b">')
-      expect(asString Rule.add 'a', e, 'class', null).to.be.eql asString $('<div class="a">')
     it "should add content before selection", ->
-      e = $('<div>')
-      expect(asString Rule.add 'a', e, null, '-').to.be.eql asString $('a<div></div>')
+      c = $('<div>')
+      e = $('<span>').appendTo c
+      r = Rule.add 'a', e, null, '-'
+      expect(asString c).to.be.eql asString $('<div>a<span></span></div>')
+      expect(asString r).to.be.eql 'a'
     it "should add content after selection", ->
-      e = $('<div>')
-      expect(asString Rule.add 'a', e, null, '+').to.be.eql asString $('<div></div>a')
+      c = $('<div>')
+      e = $('<span>').appendTo c
+      r = Rule.add 'a', e, null, '+'
+      expect(asString c).to.be.eql asString $('<div><span></span>a</div>')
+      expect(asString r).to.be.eql 'a'
     it "should add content as the first child of selection", ->
-      e = $('<div>')
+      c = $('<div>')
+      e = $('<span>').appendTo c
       f = $('<span>').appendTo e
-      expect(asString Rule.add 'a', e, null, '<').to.be.eql asString $('<div>a<span></span></div>')
+      r = Rule.add 'a', e, null, '<'
+      expect(asString c).to.be.eql asString $('<div><span>a<span></span></span></div>')
+      expect(asString r).to.be.eql 'a'
     it "should add content as the last child of selection", ->
-      e = $('<div>')
+      c = $('<div>')
+      e = $('<span>').appendTo c
       f = $('<span>').appendTo e
-      expect(asString Rule.add 'a', e, null, '>').to.be.eql asString $('<div><span></span>a</div>')
+      r = Rule.add 'a', e, null, '>'
+      expect(asString c).to.be.eql asString $('<div><span><span></span>a</span></div>')
+      expect(asString r).to.be.eql 'a'
     it "should set content to replace selection", ->
-      e = $('<div>')
-      expect(asString Rule.add '<span>', e, null, '=').to.be.eql asString $('<span>')
+      c = $('<div>')
+      e = $('<span>').appendTo c
+      r = Rule.add 'a', e, null, '='
+      expect(asString c).to.be.eql asString $('<div>a</div>')
+      expect(asString r).to.be.eql 'a'
     it "should set content as the only child of selection", ->
-      e = $('<div>')
-      expect(asString Rule.add 'a', e).to.be.eql asString $('<div>a</div>')
+      c = $('<div>')
+      e = $('<span>').appendTo c
+      f = $('<span>').appendTo e
+      r = Rule.add 'a', e
+      expect(asString c).to.be.eql asString $('<div><span>a</span></div>')
+      expect(asString r).to.be.eql 'a'
   describe '.render', ->
     it "should return a jQuery object", ->
       # Test what happens if you set the current selection to nothing, then select off of it after
@@ -109,12 +129,5 @@ describe 'Rule', ->
         'select':
           '=': -> if not @options? then ''
           'option': -> option.value for option in @options?
-      template = $('''
-          <div>
-            <select>
-              <option>
-              </option>
-            </select>
-          </div>
-        ''')
+      template = $('<div><select><option></option></select></div>')
       expect(asString rule.render {}, template).to.be.eql asString $('<div></div>')
