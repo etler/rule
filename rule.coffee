@@ -75,7 +75,6 @@ class Rule
     else
       # Concatenate array content into one object
       if content instanceof Array
-        # Appending to a div is insted of after to an empty $() because zepto does not support that
         content = (content.reduce ((container, content) -> container.append content), $ '<div>').contents()
       content = (container = ($ '<div>').append content).contents()
       # Add the content to various positions
