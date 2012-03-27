@@ -46,8 +46,12 @@ class Rule
       if rule.template? then rule.render data else rule.render data, selection; undefined
     # Return objects that can be added to the dom directly as is
     # If null or undefined return as is to be ignored
-    else if rule instanceof HTMLElement or rule instanceof $ or !rule? or rule is true or rule is false
-      rule
+    else if rule instanceof HTMLElement or
+      rule instanceof $ or
+      !rule? or
+      rule is true or
+      rule is false
+        rule
     # If the object has a custom toString then use it
     else if rule.toString isnt Object::toString
       rule.toString()
@@ -62,7 +66,7 @@ class Rule
     return selection if not (content?)
     # Attribute is specified, so modify attribute
     if attribute
-      content = content.join('') if content.join?
+      content = content.join('') if content instanceof Array
       selection.attr attribute,
         if position is '-' then content + (selection.attr attribute)
         else if position is '+' then (selection.attr attribute) + content
@@ -70,7 +74,7 @@ class Rule
     # Attribute not specified so modify selected element
     else
       # Concatenate array content into one object
-      if content.reduce
+      if content instanceof Array
         # Appending to a div is insted of after to an empty $() because zepto does not support that
         content = (content.reduce ((container, content) -> container.append content), $ '<div>').contents()
       content = (container = ($ '<div>').append content).contents()
