@@ -36,7 +36,7 @@ describe 'Rule', ->
     it "should return the array with each array item parsed", ->
       expect(Rule.parse ['a','b','c']).to.be.eql ['a','b','c']
       expect(Rule.parse [(->@a),(->@b),(->@c)], {a:'a',b:'b',c:'c'}).to.be.eql ['a','b','c']
-    it "should return the result of the rule's build function", ->
+    it "should return the result of the rule's render function", ->
       rule = new Rule
         '.a': ->@
       selection = $ '<div><span class="a"></div>'
@@ -122,6 +122,15 @@ describe 'Rule', ->
       r = Rule.add 'a', e
       expect(asString c).to.be.eql asString $('<div><span>a</span></div>')
       expect(asString r).to.be.eql 'a'
+    it "should set array of content as children of selection", ->
+      c = $('<div>')
+      r = Rule.add ['a','b','c','d'], c
+      expect(asString c).to.be.eql asString $('<div>abcd</div>')
+      expect(asString r).to.be.eql 'abcd'
+    it "should set joined array of content as attribute", ->
+      c = $('<div>')
+      r = Rule.add ['a','b','c','d'], c, 'class'
+      expect(asString r).to.be.eql asString $('<div class="abcd"></div>')
   describe '.render', ->
     it "should return a jQuery object", ->
       # Test what happens if you set the current selection to nothing, then select off of it after
