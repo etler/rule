@@ -1,3 +1,10 @@
+# Rule
+# templating library
+# http://rulejs.com/
+#
+# Copyright 2012, Tim Etler
+# Licensed under the MIT or GPL Version 2 licenses.
+
 @.Rule =
 class Rule
   # Build a new rule with a rule object
@@ -47,7 +54,7 @@ class Rule
     # Return objects that can be added to the dom directly as is
     # If null or undefined return as is to be ignored
     else if rule instanceof HTMLElement or
-      rule instanceof $ or
+      ($.fn.isPrototypeOf rule) or
       !rule? or
       rule is true or
       rule is false
@@ -76,14 +83,15 @@ class Rule
       # Concatenate array content into one object
       if content instanceof Array
         content = (content.reduce ((container, content) -> container.append content), $ '<div>').contents()
-      content = (container = ($ '<div>').append content).contents()
+      content = (($ '<div>').append content).contents()
       # Add the content to various positions
-      if position is '-' then content.insertBefore selection
-      else if position is '+' then content.insertAfter selection
-      else if position is '=' then content.replaceAll selection
-      else if position is '<' then content.prependTo selection
-      else if position is '>' then content.appendTo selection
-      else content.appendTo selection.empty()
+      if position is '-' then selection.before content
+      else if position is '+' then selection.after content
+      else if position is '=' then selection.replaceWith content
+      else if position is '<' then selection.prepend content
+      else if position is '>' then selection.append content
+      else selection.empty().append content
+      return content
 
   # Parse the selector for selection, position and attribute
   @split: (selector) =>
