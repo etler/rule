@@ -204,6 +204,13 @@ describe 'Rule', ->
         '-': 'a'
       rule.template = $('<span>x</span>')
       expect(asString rule.render()).to.be.eql asString $('<div>a<span>bcd</span>e</div>').html()
+    it "should add content before and after, then replace the selection", ->
+      rule = new Rule
+        '+': 'c'
+        '-': 'a'
+        '=': 'b'
+      rule.template = $('<span>x</span>')
+      expect(asString rule.render()).to.be.eql asString $('<div>abc</div>').html()
     it "should replace the root of the template with the new content", ->
       rule = new Rule
         '=': 'test'
