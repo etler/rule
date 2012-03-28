@@ -190,6 +190,20 @@ describe 'Rule', ->
         '-': 'test'
       rule.template = $('<div>a</div>')
       expect(asString rule.render()).to.be.eql asString $('<span>test<div>a</div></span>').html()
+    it "should return the template and the content added after it", ->
+      rule = new Rule
+        '+': 'test'
+      rule.template = $('<div>a</div>')
+      expect(asString rule.render()).to.be.eql asString $('<span><div>a</div>test</span>').html()
+    it "should add content in the right order and return the added siblings", ->
+      rule = new Rule
+        '+': 'e'
+        '': 'c'
+        '>': 'd'
+        '<': 'b'
+        '-': 'a'
+      rule.template = $('<span>x</span>')
+      expect(asString rule.render()).to.be.eql asString $('<div>a<span>bcd</span>e</div>').html()
     it "should replace the root of the template with the new content", ->
       rule = new Rule
         '=': 'test'
@@ -213,6 +227,11 @@ describe 'Rule', ->
           'div': 'c'
       rule.template = $('<div><a><span>b</span></a><div></div></div>')
       expect(asString rule.render()).to.be.eql asString $('<div><a><span>b</span></a><div></div></div>')
+    it "should not find the selection and do nothing", ->
+      rule = new Rule
+        'span': 'x'
+      rule.template = $('<div><a></a></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><a></a></div>')
     it "should select into a new scope, replace it, then select off of it", ->
       rule = new Rule
         'a':
@@ -227,9 +246,9 @@ describe 'Rule', ->
       expect(asString rule.render {a:'x',b:'y',c:'z'}).to.be.eql asString $('<div><span>xyz</span></div>')
     it "should set the contents to the result of a function that returns an array of functions", ->
       rule = new Rule
-        'span': -> ((i)->i*@x).bind(@, i) for i in [1..5]
+        'span': -> ((i)->i*@x).bind(@, i) for i in [1...5]
       rule.template = $('<div><span></span></div>')
-      expect(asString rule.render {x: 10}).to.be.eql asString $('<div><span>1020304050</span></div>')
+      expect(asString rule.render {x: 2}).to.be.eql asString $('<div><span>2468</span></div>')
     it "should remove a selection then attempt to add to it", ->
       rule = new Rule
         'a':
@@ -251,3 +270,8 @@ describe 'Rule', ->
           '': 'c'
       rule.template = $('<div><a>b</a></div>')
       expect(asString rule.render()).to.be.eql asString $('<div><a>c</a><a></a></div>')
+    it "shoud do nothing if selector is given an empty object", ->
+      rule = new Rule
+        '': {}
+      rule.template = $('<div>')
+      expect(asString rule.render()).to.be.eql asString $('<div></div>')
