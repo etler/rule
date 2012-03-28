@@ -185,16 +185,16 @@ describe 'Rule', ->
         'a span:nth-of-type(2)@class': 'test'
       rule.template = $('<div><a><span>a</span><h1>x</h1><span>b</span><span>c</span></a></div>')
       expect(asString rule.render()).to.be.eql asString $('<div><a><span>a</span><h1>x</h1><span class="test">b</span><span>c</span></a></div>')
-    it "should return the template and the content added before it", ->
-      rule = new Rule
-        '-': 'test'
-      rule.template = $('<div>a</div>')
-      expect(asString rule.render()).to.be.eql asString $('<span>test<div>a</div></span>').html()
     it "should return the template and the content added after it", ->
       rule = new Rule
         '+': 'test'
       rule.template = $('<div>a</div>')
       expect(asString rule.render()).to.be.eql asString $('<span><div>a</div>test</span>').html()
+    it "should return the template and the content added before it", ->
+      rule = new Rule
+        '-': 'test'
+      rule.template = $('<div>a</div>')
+      expect(asString rule.render()).to.be.eql asString $('<span>test<div>a</div></span>').html()
     it "should add content in the right order and return the added siblings", ->
       rule = new Rule
         '+': 'e'
