@@ -8,8 +8,9 @@
 @.Rule =
 class Rule
   # Build a new rule with a rule object
-  constructor: (rule) ->
+  constructor: (rule, template) ->
     @rule = rule
+    @template = template
 
   # Map the data object to the template and return a new element populated with data
   # Optionally takes an element and applies modifications directly to that element
