@@ -43,7 +43,7 @@ class Rule
     # because they compile to smaller javascript
     # Bind the function to the data and parse its results
     if rule instanceof Function
-      Rule.parse (rule.call data), data, selection
+      Rule.parse (rule.call data, selection), data, selection
     # Parse each item in the array and return the array
     else if rule instanceof Array
       Rule.parse item, data, selection for item in rule
