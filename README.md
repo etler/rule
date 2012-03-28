@@ -319,6 +319,16 @@ jQuery, or a library that implements the following
   .render
   .replaceAll
 
+Size
+----
+Rule attempts to be as simplistic and small as possible while still providing a large amount of flexibility and power
+
+Here is a minified gzipped size comparison to some other client side templating libraries
+  rule:        0.71 kb
+  mustache:    2.01 kb
+  pure:        4.21 kb
+  jade:        8.19 kb
+
 Thanks
 ------
 Thanks to [Pure](http://beebole.com/pure/) for providing the inspiration.
