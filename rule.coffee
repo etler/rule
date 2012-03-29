@@ -1,7 +1,6 @@
 # Rule v0.1.0
 # templating library
 # http://rulejs.com/
-
 #
 # Copyright 2012, Tim Etler
 # Licensed under the MIT or GPL Version 2 licenses.
@@ -17,7 +16,7 @@ class Rule
   # Optionally takes an element and applies modifications directly to that element
   render: (data, element) ->
     # Set element to a copy of the template if it is not already set
-    element = $ (element ?= ($ @template)[0].cloneNode(true))
+    element = $ (element ?= ($ @template).clone())
     # Insure element is always within a container to support modification on the root element
     ($ '<div>').append(element) if not element.parent().length
     # scope is used to encapsulate any content added outside of the main element
@@ -52,11 +51,15 @@ class Rule
     # does not have a template then use the current selection
     # and apply changes directly to it. Return undefined in that case so
     else if rule instanceof Rule
-      if rule.template? then rule.render data else rule.render data, selection; undefined
+      if rule.template?
+        rule.render data
+      else
+        rule.render data, selection
+        return undefined
     # Return objects that can be added to the dom directly as is
     # If null or undefined return as is to be ignored
     else if rule instanceof HTMLElement or
-      ($.fn.isPrototypeOf rule) or
+      rule instanceof $ or
       !rule? or
       rule is true or
       rule is false
@@ -99,6 +102,7 @@ class Rule
 
   # Parse the selector for selection, position and attribute
   @split: (selector) =>
+    # Splits selector[@][-<=>+] to selector, position = selector[@], [-<=>+]
     selector = selector[0...-1] if position = (selector[-1...].match /[-+=<>]/)?[0]
     [selector, attribute] = selector.split('@', 2)
     [selector, attribute, position]
