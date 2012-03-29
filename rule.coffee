@@ -1,6 +1,7 @@
-# Rule
+# Rule v0.1.0
 # templating library
 # http://rulejs.com/
+
 #
 # Copyright 2012, Tim Etler
 # Licensed under the MIT or GPL Version 2 licenses.
