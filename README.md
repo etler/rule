@@ -306,18 +306,24 @@ Requirements
 jQuery, or a library that implements the following
 
   .add
+  .after
   .append
-  .appendTo
   .attr
+  .before
+  .clone
   .contents
   .empty
   .find
-  .insertAfter
-  .insertBefore
+  .not
   .parent
-  .prependTo
-  .render
-  .replaceAll
+  .prepend
+  .replaceWith
+
+Zepto has near support, but has the following issues:
+  .add does not add nodes in node order based on their position in the parent node
+  .clone is not implemented
+  .contents is not implemented
+  instanceof $ does not work because $ does not have the Zepto object prototype
 
 Size
 ----
