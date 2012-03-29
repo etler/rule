@@ -83,7 +83,9 @@ class Rule
     else
       # Concatenate array content into one object
       if content instanceof Array
-        content = (content.reduce ((container, content) -> container.append content), $ '<div>').contents()
+        container = $ '<div>'
+        container.append item for item in content
+        content = container.contents()
       content = (($ '<div>').append content).contents()
       # Add the content to various positions
       if position is '-' then selection.before content
