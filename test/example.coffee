@@ -4,9 +4,8 @@ rule = new Rule
     '=': -> '<select>'
     '@test': 'attribute'
     '': '<option>test</option>'
-  '<': 'test'
-template = $('<div><select><option>bad</option></select></div>')
-rule.template = template
+  '<': 'test',
+  $('<div><select><option>bad</option></select></div>')
 $('body').append rule.render {}
 console.timeEnd('example')
 
@@ -16,8 +15,7 @@ rule = new Rule
   '+': 'e'
   '' : 'c'
   '<': 'b'
-  '>': 'd'
-template = $('<span></span>')
-rule.template = template
+  '>': 'd',
+  $('<span></span>')
 $('body').append rule.render {}
 console.timeEnd('example2')
