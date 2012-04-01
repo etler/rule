@@ -1,6 +1,7 @@
 # Rule v0.1.0
 # templating library
-# http://rulejs.com/
+# http://rulejs.com
+# http://github.com/etler/rule
 #
 # Copyright 2012, Tim Etler
 # Licensed under the MIT or GPL Version 2 licenses.
@@ -18,7 +19,7 @@ class Rule
     # Set element to a copy of the template if it is not already set
     element = $ (element ?= ($ @template).clone())
     # Insure element is always within a container to support modification on the root element
-    ($ '<div>').append(element) if not element.parent().length
+    document.createElement('div').appendChild(element.get(0)) if not element.parent().length
     # scope is used to encapsulate any content added outside of the main element
     scope = element
     for selector, rule of @rule
@@ -90,15 +91,15 @@ class Rule
         container = $ '<div>'
         container.append item for item in content
         content = container.contents()
-      content = (($ '<div>').append content).contents()
+      content = document.createTextNode content
       # Add the content to various positions
       if position is '-' then selection.before content
       else if position is '+' then selection.after content
       else if position is '=' then selection.replaceWith content
       else if position is '<' then selection.prepend content
       else if position is '>' then selection.append content
-      else selection.empty().append content
-      return content
+      else (selection.get 0).innerHTML = ''; (selection.get 0).appendChild content
+      return $ content
 
   # Parse the selector for selection, position and attribute
   @split: (selector) =>
