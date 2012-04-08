@@ -15,31 +15,34 @@ class Rule
 
   # Map the data object to the template and return a new element populated with data
   # Optionally takes an element and applies modifications directly to that element
-  render: (data, element) ->
-    # Set element to a copy of the template if it is not already set
-    element = $ (element ?= ($ @template).clone())
-    # Insure element is always within a container to support modification on the root element
-    document.createElement('div').appendChild(element.get(0)) if not element.parent().length
-    # scope is used to encapsulate any content added outside of the main element
-    scope = element
+  render: (data, parent) ->
+    parent = Rule.toElementArray parent
+    # Set parent to a copy of the template if it is not already set
+    if !parent?
+      parent = []
+      parent.push subparent.cloneNode true for subparent in Rule.toElementArray @template
+    # scope is used to encapsulate any content added outside of the parent
+    scope = parent[0..]
     for selector, rule of @rule
       [selector, attribute, position] = Rule.split selector
-      # Empty selector selects the root element
-      selection = if selector is '' then element else element.find selector
+      # Empty selector selects the parent
+      if selector?
+        selection = []
+        selection.push element for element in subparent.querySelectorAll(selector) for subparent in parent
+      else
+        selection = parent
       # Add will return the elements that were added to the selection
-      selection = Rule.add (Rule.parse rule, data, selection), selection, attribute, position
-      # If we are manipulating the root template element and siblings
-      if selector is '' and position in ['=','+','-']
-        # Increase the scope for manipulated siblings
-        scope = scope.add selection
-        if position is '='
-          scope = scope.not element
-          # If we replaced the element then it should become the new content
-          element = selection
+      result = Rule.add (Rule.parse rule, data, selection), selection, attribute, position
+      # If we are manipulating the parent and siblings
+      if !selector?
+        index = scope.indexOf parent[0]
+        length = parent.length
+        scope.splice index, length, result...
+        parent = result if position is '='
     return scope
 
   # Parse the rule to get the content object
-  @parse: (rule, data, selection) =>
+  @parse: (rule, data, selection) ->
     # If statments are used throughout instead of switches
     # because they compile to smaller javascript
     # Bind the function to the data and parse its results
@@ -59,51 +62,73 @@ class Rule
         return undefined
     # Return objects that can be added to the dom directly as is
     # If null or undefined return as is to be ignored
-    else if rule instanceof HTMLElement or
-      rule instanceof $ or
-      !rule? or
-      rule is true or
-      rule is false
-        rule
+    else if rule instanceof Node or !rule?
+      rule
+    else if rule instanceof $
+      if rule.length is 1 then rule.get(0) else rule.get()
     # If the object has a custom toString then use it
     else if rule.toString isnt Object::toString
       rule.toString()
     # If the object does not have a custom toString
     # create a new rule from the object
-    else
+    else if Object::isPrototypeOf rule
       Rule.parse (new Rule rule), data, selection
 
   # Add a content object to a selection or attribute
   # of a selection at the position specified
-  @add: (content, selection, attribute, position) =>
-    return selection if not (content?)
+  @add: (content, selections, attribute, position) ->
+    return selections if not (content?)
     # Attribute is specified, so modify attribute
     if attribute
-      content = content.join('') if content instanceof Array
-      selection.attr attribute,
-        if position is '-' then content + (selection.attr attribute)
-        else if position is '+' then (selection.attr attribute) + content
-        else content
+      for selection in selections
+        content = content.join('') if content instanceof Array
+        previous = (selection.getAttribute attribute) ? ''
+        selection.setAttribute attribute,
+          if position is '-' then content + previous
+          else if position is '+' then previous + content
+          else content
+      return selections
     # Attribute not specified so modify selected element
     else
-      # Concatenate array content into one object
-      if content instanceof Array
-        container = $ '<div>'
-        container.append item for item in content
-        content = container.contents()
-      content = document.createTextNode content
-      # Add the content to various positions
-      if position is '-' then selection.before content
-      else if position is '+' then selection.after content
-      else if position is '=' then selection.replaceWith content
-      else if position is '<' then selection.prepend content
-      else if position is '>' then selection.append content
-      else (selection.get 0).innerHTML = ''; (selection.get 0).appendChild content
-      return $ content
+      result = []
+      for selection in selections
+        # Add the content to various positions
+        parent = target = selection
+        if position is '-'
+          parent = selection.parentElement
+        else if position is '+'
+          parent = selection.parentElement
+          target = selection.nextSibling
+        else if position is '='
+          parent = selection.parentElement
+        else if position is '<'
+          target = selection.firstChild
+        else if position is '>'
+          target = null
+        else
+          selection.removeChild selection.firstChild while selection.firstChild?
+          target = null
+        # Concatenate array content into one object
+        content = [content] if !(content instanceof Array)
+        for element in content
+          element = if !(element instanceof Node) then document.createTextNode element else element.cloneNode(true)
+          result.push selection if position is '+'
+          result.push element
+          result.push selection if position is '-'
+          if parent instanceof HTMLElement
+            parent.insertBefore element, target
+        parent?.removeChild target if position is '='
+      return if position in ['-', '+', '='] then result else selections
+
+  @toElementArray: (element) ->
+    if element instanceof $ then element.get() else if element instanceof Node then [element] else element
 
   # Parse the selector for selection, position and attribute
-  @split: (selector) =>
+  @split: (selector) ->
+    position = selector[-1...]
+    position = undefined if position isnt '-' and position isnt '+' and position isnt '=' and position isnt '<' and position isnt '>'
     # Splits selector[@][-<=>+] to selector, position = selector[@], [-<=>+]
-    selector = selector[0...-1] if position = (selector[-1...].match /[-+=<>]/)?[0]
+    selector = selector[0...-1] if position?
     [selector, attribute] = selector.split('@', 2)
+    selector = undefined if selector is ''
     [selector, attribute, position]

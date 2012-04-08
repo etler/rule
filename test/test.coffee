@@ -1,6 +1,6 @@
 describe 'Rule', ->
   asString = (object) ->
-    $('<div>').append(object).html()
+    $('<div>').append($ object).html()
   describe '::split', ->
     selectors = ['div', '.a', '.a-b', '["a=b"]', 'div:nth-child(n)', 'div > span', 'div + span']
     attributes = ['a', 'a-b']
@@ -28,37 +28,42 @@ describe 'Rule', ->
 
   describe '::parse', ->
     it "should return the parsed result of the function bound to data", ->
-      expect(Rule.parse (->@), 'a').to.be 'a'
-      expect(Rule.parse (->@a), {a:'b'}).to.be 'b'
-      expect(Rule.parse (->->@a), {a:'b'}).to.be 'b'
+      expect(Rule.parse (->@), 'a').to.be.eql 'a'
+      expect(Rule.parse (->@a), {a:'b'}).to.be.eql 'b'
+      expect(Rule.parse (->->@a), {a:'b'}).to.be.eql 'b'
       a = -> @a
-      expect(Rule.parse (->a), {a:'b'}).to.be 'b'
+      expect(Rule.parse (->a), {a:'b'}).to.be.eql 'b'
     it "should return the array with each array item parsed", ->
-      expect(Rule.parse ['a','b','c']).to.be.eql ['a','b','c']
-      expect(Rule.parse [(->@a),(->@b),(->@c)], {a:'a',b:'b',c:'c'}).to.be.eql ['a','b','c']
+      a = document.createTextNode('a')
+      b = document.createTextNode('b')
+      c = document.createTextNode('c')
+      expect(Rule.parse [a,b,c]).to.be.eql [a,b,c]
+      expect(Rule.parse [(->@a),(->@b),(->@c)], {a: a, b: b, c: c}).to.be.eql [a,b,c]
     it "should return the result of the rule's render function", ->
       rule = new Rule
         '.a': ->@
       selection = $ '<div><span class="a"></div>'
       Rule.parse rule, 'b', selection
       expect(asString selection).to.be.equal asString $ '<div><span class="a">b</div>'
-      selection = $ '<div><span class="a"></div>',
+      selection = $ '<div><span class="a"></div>'
       rule.template = selection
       expect(asString Rule.parse rule, 'b').to.be.eql asString $ '<div><span class="a">b</span></div>'
     it "should return the passed in HTMLElement", ->
       el = $('<div>')[0]
       expect(Rule.parse el).to.be el
-    it "should return the passed in jQuery object", ->
+    it "should return the passed in jQuery object's contents", ->
       el = $('<div>')
-      expect(Rule.parse el).to.be el
+      expect((Rule.parse el)).to.eql el.get(0)
+    it "should return the passed in jQuery object's contents as an array", ->
+      el = $('<div></div><span></span>')
+      expect((Rule.parse el)).to.eql el.get()
     it "should return undefined", ->
       expect(Rule.parse undefined).to.be undefined
     it "should return null", ->
       expect(Rule.parse null).to.be null
-    it "should return true or false", ->
-      expect(Rule.parse true).to.be true
-      expect(Rule.parse false).to.be false
     it "should return the object's toString results", ->
+      expect(Rule.parse true).to.be 'true'
+      expect(Rule.parse false).to.be 'false'
       expect(Rule.parse 'abc').to.be 'abc'
       expect(Rule.parse 123).to.be '123'
       O = ->
@@ -88,27 +93,27 @@ describe 'Rule', ->
       e = $('<span>').appendTo c
       r = Rule.add 'a', e, null, '-'
       expect(asString c).to.be.eql asString $('<div>a<span></span></div>')
-      expect(asString r).to.be.eql 'a'
+      expect(asString r).to.be.eql $('<div>a<span></span></div>').html()
     it "should add content after selection", ->
       c = $('<div>')
       e = $('<span>').appendTo c
       r = Rule.add 'a', e, null, '+'
       expect(asString c).to.be.eql asString $('<div><span></span>a</div>')
-      expect(asString r).to.be.eql 'a'
+      expect(asString r).to.be.eql $('<div><span></span>a</div>').html()
     it "should add content as the first child of selection", ->
       c = $('<div>')
       e = $('<span>').appendTo c
       f = $('<span>').appendTo e
       r = Rule.add 'a', e, null, '<'
       expect(asString c).to.be.eql asString $('<div><span>a<span></span></span></div>')
-      expect(asString r).to.be.eql 'a'
+      expect(asString r).to.be.eql $('<div><span>a<span></span></span></div>').html()
     it "should add content as the last child of selection", ->
       c = $('<div>')
       e = $('<span>').appendTo c
       f = $('<span>').appendTo e
       r = Rule.add 'a', e, null, '>'
       expect(asString c).to.be.eql asString $('<div><span><span></span>a</span></div>')
-      expect(asString r).to.be.eql 'a'
+      expect(asString r).to.be.eql $('<div><span><span></span>a</span></div>').html()
     it "should set content to replace selection", ->
       c = $('<div>')
       e = $('<span>').appendTo c
@@ -121,12 +126,12 @@ describe 'Rule', ->
       f = $('<span>').appendTo e
       r = Rule.add 'a', e
       expect(asString c).to.be.eql asString $('<div><span>a</span></div>')
-      expect(asString r).to.be.eql 'a'
+      expect(asString r).to.be.eql $('<div><span>a</span></div>').html()
     it "should set array of content as children of selection", ->
       c = $('<div>')
       r = Rule.add ['a','b','c','d'], c
       expect(asString c).to.be.eql asString $('<div>abcd</div>')
-      expect(asString r).to.be.eql 'abcd'
+      expect(asString r).to.be.eql asString $('<div>abcd</div>')
     it "should set joined array of content as attribute", ->
       c = $('<div>')
       r = Rule.add ['a','b','c','d'], c, 'class'
@@ -165,6 +170,11 @@ describe 'Rule', ->
         'span': 'test',
         $('<div><span></span></div>')
       expect(asString rule.render()).to.be.eql asString $('<div><span>test</span></div>')
+    it "should replace the contents of the selection", ->
+      rule = new Rule
+        'span': 'test',
+        $('<div><span><a>a</a><a>b</a><a>c</a></span></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><span>test</span></div>')
     it "should set the contents of multiple selections", ->
       rule = new Rule
         'span': 'test',
@@ -189,12 +199,12 @@ describe 'Rule', ->
       rule = new Rule
         '+': 'test',
         $('<div>a</div>')
-      expect(asString rule.render()).to.be.eql asString $('<span><div>a</div>test</span>').html()
+      expect(asString rule.render()).to.be.eql $('<span><div>a</div>test</span>').html()
     it "should return the template and the content added before it", ->
       rule = new Rule
         '-': 'test',
         $('<div>a</div>')
-      expect(asString rule.render()).to.be.eql asString $('<span>test<div>a</div></span>').html()
+      expect(asString rule.render()).to.be.eql $('<span>test<div>a</div></span>').html()
     it "should add content in the right order and return the added siblings", ->
       rule = new Rule
         '+': 'e'
@@ -203,20 +213,20 @@ describe 'Rule', ->
         '<': 'b'
         '-': 'a',
         $('<span>x</span>')
-      expect(asString rule.render()).to.be.eql asString $('<div>a<span>bcd</span>e</div>').html()
+      expect(asString rule.render()).to.be.eql $('<div>a<span>bcd</span>e</div>').html()
     it "should add content before and after, then replace the selection", ->
       rule = new Rule
         '+': 'c'
         '-': 'a'
         '=': 'b',
         $('<span>x</span>')
-      expect(asString rule.render()).to.be.eql asString $('<div>abc</div>').html()
-    it "should replace the root of the template with the new content", ->
+      expect(asString rule.render()).to.be.eql $('<div>abc</div>').html()
+    it "should replace the root of the template with new content", ->
       rule = new Rule
         '=': 'test',
         $('<div>a</div>')
-      expect(asString rule.render()).to.be.eql asString $('<span>test</span>').html()
-    it "should replace the root of the template with the new content and select off it", ->
+      expect(asString rule.render()).to.be.eql $('<span>test</span>').html()
+    it "should replace the root of the template with new content and select off it", ->
       rule = new Rule
         '=': ->$('<a><span>a</span></a>')
         'span': 'test',
@@ -274,11 +284,23 @@ describe 'Rule', ->
       rule = new Rule
         'a':
           '+': ->$('<a>')
-          '': 'c',
+          '': 'c'
         $('<div><a>b</a></div>')
       expect(asString rule.render()).to.be.eql asString $('<div><a>c</a><a></a></div>')
-    it "shoud do nothing if selector is given an empty object", ->
+    it "should do nothing if selector is given an empty object", ->
       rule = new Rule
         '': {},
         $('<div>')
       expect(asString rule.render()).to.be.eql asString $('<div></div>')
+    it "should append before each element in the parent array", ->
+      rule = new Rule
+        '-': ->$('<a>')
+        $('<div></div><div></div><div></div>')
+      expect(asString rule.render()).to.be.eql asString $('<a></a><div></div><a></a><div></div><a></a><div></div>')
+    it "should append before each element in the parent array then replace each parent element with new content", ->
+      rule = new Rule
+        '-': ->$('<a>')
+        '=': ->$('<div>')
+        $('<span></span><span></span><span></span>')
+      debugger
+      expect(asString rule.render()).to.be.eql asString $('<a></a><div></div><a></a><div></div><a></a><div></div>')
