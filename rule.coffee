@@ -103,6 +103,8 @@ class Rule
         selection.setAttribute attribute,
           if position is '-' then content + previous
           else if position is '+' then previous + content
+          else if position is '<' then content + ' ' + previous
+          else if position is '>' then previous + ' ' + content
           else content
       # Attribute not specified so modify selected element
       else

@@ -11,7 +11,6 @@ describe 'Rule', ->
           for position in positions
             expect(Rule.split (selector ? '')+(if attribute then '@'+attribute else '')+(position ? '')).to.be.eql [selector, attribute, position]
       return
-
   describe '::parse', ->
     it "should return the parsed result of the function bound to data", ->
       expect(Rule.parse (->@), 'a').to.be.eql 'a'
@@ -70,6 +69,12 @@ describe 'Rule', ->
     it "should append the attribute with content", ->
       e = $('<div class="a">')
       expect(asString Rule.add 'b', e, 'class', '+').to.be.eql asString $('<div class="ab">')
+    it "should add before the attribute with content", ->
+      e = $('<div class="b">')
+      expect(asString Rule.add 'a', e, 'class', '<').to.be.eql asString $('<div class="a b">')
+    it "should add after the attribute with content", ->
+      e = $('<div class="a">')
+      expect(asString Rule.add 'b', e, 'class', '>').to.be.eql asString $('<div class="a b">')
     it "should set the attribute to content", ->
       e = $('<div class="b">')
       expect(asString Rule.add 'a', e, 'class').to.be.eql asString $('<div class="a">')
