@@ -29,16 +29,14 @@ class Rule
         [selector, attribute, position] = Rule.split key
         # Empty selector selects the parent
         if selector?
-          selection = []
-          selection.push element for element in subparent.querySelectorAll(selector)
+          selection = (element for element in subparent.querySelectorAll selector)
         else
           selection = [subparent]
         # Add will return the elements that were added to the selection
         result = Rule.add (Rule.parse rule, data, selection), selection, attribute, position
         # If we are manipulating the parent and siblings
         if !selector?
-          index = scope.indexOf subparent
-          scope.splice index, 1, result...
+          scope.splice (scope.indexOf subparent), 1, result...
           parent.splice (parent.indexOf subparent), 1, result... if position is '='
     return scope
 
@@ -79,36 +77,30 @@ class Rule
   # of a selection at the position specified
   @add: (content, selections, attribute, position) ->
     return selections if not (content?)
-    # Attribute is specified, so modify attribute
-    if attribute
-      for selection in selections
+    result = []
+    for selection in selections
+      # Attribute is specified, so modify attribute
+      if attribute
         content = content.join('') if content instanceof Array
         previous = (selection.getAttribute attribute) ? ''
         selection.setAttribute attribute,
           if position is '-' then content + previous
           else if position is '+' then previous + content
           else content
-      return selections
-    # Attribute not specified so modify selected element
-    else
-      result = []
-      for selection in selections
+      # Attribute not specified so modify selected element
+      else
         # Add the content to various positions
         parent = target = selection
-        if position is '-'
+        if position in ['-', '+', '=']
           parent = selection.parentElement
-        else if position is '+'
-          parent = selection.parentElement
+        if position is '+'
           target = selection.nextSibling
-        else if position is '='
-          parent = selection.parentElement
-        else if position is '<'
+        if position is '<'
           target = selection.firstChild
-        else if position is '>'
+        if position is '>' or !position?
           target = null
-        else
+        if !position?
           selection.removeChild selection.firstChild while selection.firstChild?
-          target = null
         # Concatenate array content into one object
         content = [content] if !(content instanceof Array)
         for element in content
@@ -119,14 +111,13 @@ class Rule
           if parent instanceof HTMLElement
             parent.insertBefore element, target
         parent?.removeChild target if position is '='
-      return if position in ['-', '+', '='] then result else selections
+    return if position in ['-', '+', '='] and !attribute? then result else selections
 
-  # Parse the selector for selection, position and attribute
-  @split: (selector) ->
-    position = selector[-1...]
-    position = undefined if position isnt '-' and position isnt '+' and position isnt '=' and position isnt '<' and position isnt '>'
+  # Parse the selector for selection, attribute, and position
+  @split: (key) ->
     # Splits selector[@][-<=>+] to selector, position = selector[@], [-<=>+]
-    selector = selector[0...-1] if position?
-    [selector, attribute] = selector.split('@', 2)
+    position = key[-1...]
+    if position in ['-','+','<','>','='] then key = key[0...-1] else position = undefined
+    [selector, attribute] = key.split('@', 2)
     selector = undefined if selector is ''
-    [selector, attribute, position]
+    return [selector, attribute, position]
