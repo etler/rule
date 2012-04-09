@@ -2,28 +2,14 @@ describe 'Rule', ->
   asString = (object) ->
     $('<div>').append($ object).html()
   describe '::split', ->
-    selectors = ['div', '.a', '.a-b', '["a=b"]', 'div:nth-child(n)', 'div > span', 'div + span']
-    attributes = ['a', 'a-b']
-    positions = ['-', '+', '=', '<', '>']
-    it "should return [selector, undefined, undefined]", ->
-      for selector in selectors
-        expect(Rule.split "#{selector}").to.be.eql [selector, undefined, undefined]
-      return
-    it "should return [selector, attribute, undefined]", ->
-      for selector in selectors
-        for attribute in attributes
-          expect(Rule.split "#{selector}@#{attribute}").to.be.eql [selector, attribute, undefined]
-      return
-    it "should return [selector, undefined, position]", ->
-      for selector in selectors
-        for position in positions
-          expect(Rule.split "#{selector}#{position}").to.be.eql [selector, undefined, position]
-      return
+    selectors = [undefined, 'div', '.a', '.a-b', '["a=b"]', 'div:nth-child(n)', 'div > span', 'div + span']
+    attributes = [undefined, 'a', 'a-b']
+    positions = [undefined, '-', '+', '=', '<', '>']
     it "should return [selector, attribute, position]", ->
       for selector in selectors
         for attribute in attributes
           for position in positions
-            expect(Rule.split "#{selector}@#{attribute}#{position}").to.be.eql [selector, attribute, position]
+            expect(Rule.split (selector ? '')+(if attribute then '@'+attribute else '')+(position ? '')).to.be.eql [selector, attribute, position]
       return
 
   describe '::parse', ->
@@ -307,6 +293,13 @@ describe 'Rule', ->
       rule = new Rule
         '-': ->$('<a>')
         '=': [(->$ '<div>'), (->$ '<div>')]
+        '+': ->$('<p>')
+        $('<span></span><span></span>')
+      expect(asString rule.render()).to.be.eql asString $('<a></a><div></div><p></p><div></div><p></p><a></a><div></div><p></p><div></div><p></p>')
+    it "should take array, append before, replace with jQuery, then append after", ->
+      rule = new Rule
+        '-': ->$('<a>')
+        '=': ->$('<div></div><div></div>')
         '+': ->$('<p>')
         $('<span></span><span></span>')
       expect(asString rule.render()).to.be.eql asString $('<a></a><div></div><p></p><div></div><p></p><a></a><div></div><p></p><div></div><p></p>')
