@@ -122,6 +122,7 @@ describe 'Rule', ->
       r = Rule.add ['a','b','c','d'], c, 'class'
       expect(asString r).to.be.eql asString $('<div class="abcd"></div>')
   describe '.render', ->
+    # From template and application
     it "should clone a template and return that object", ->
       template = $('<div>')
       rule = new Rule
@@ -135,7 +136,8 @@ describe 'Rule', ->
         '': 'test'
       expect(asString rule.render {}, template).to.be.eql asString $('<div>test</div>')
       expect(template).to.be.equal template
-    it "should set the base attributes", ->
+    # Attributes
+    it "should set the attributes of the parent", ->
       rule = new Rule
         '@class': 'test',
         $('<div>')
@@ -145,11 +147,13 @@ describe 'Rule', ->
         'span@class': 'test',
         $('<div><span></span></div>')
       expect(asString rule.render()).to.be.eql asString $('<div><span class="test"></span></div>')
+    # Data insertion
     it "should set the contents based on a data object", ->
       rule = new Rule
         '': ->@a,
         $('<div>')
       expect(asString rule.render {a: 'test'}).to.be.eql asString $('<div>test</div>')
+    # Selections
     it "should set the contents of the selection", ->
       rule = new Rule
         'span': 'test',
@@ -165,6 +169,12 @@ describe 'Rule', ->
         'span': 'x',
         $('<div><a></a></div>')
       expect(asString rule.render()).to.be.eql asString $('<div><a></a></div>')
+    it "should set the contents of a complex selection", ->
+      rule = new Rule
+        'a span:nth-of-type(2)': 'test',
+        $('<div><a><span>a</span><h1>x</h1><span>b</span><span>c</span></a></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><a><span>a</span><h1>x</h1><span>test</span><span>c</span></a></div>')
+    # Multiple Selections
     it "should set the contents of multiple selections", ->
       rule = new Rule
         'span': 'test',
@@ -175,22 +185,12 @@ describe 'Rule', ->
         'span': 'test',
         $('<div><span></span><a><span></span></a></div>')
       expect(asString rule.render()).to.be.eql asString $('<div><span>test</span><a><span>test</span></a></div>')
-    it "should set the contents of a complex selection", ->
-      rule = new Rule
-        'a span:nth-of-type(2)': 'test',
-        $('<div><a><span>a</span><h1>x</h1><span>b</span><span>c</span></a></div>')
-      expect(asString rule.render()).to.be.eql asString $('<div><a><span>a</span><h1>x</h1><span>test</span><span>c</span></a></div>')
-    it "should set the attributes of a complex selection", ->
-      rule = new Rule
-        'a span:nth-of-type(2)@class': 'test',
-        $('<div><a><span>a</span><h1>x</h1><span>b</span><span>c</span></a></div>')
-      expect(asString rule.render()).to.be.eql asString $('<div><a><span>a</span><h1>x</h1><span class="test">b</span><span>c</span></a></div>')
-    it "should return the template and the content added after it", ->
+    # Parent Positioning
+    it "should return the template and the content added before and after it", ->
       rule = new Rule
         '+': 'test',
         $('<div>a</div>')
       expect(asString rule.render()).to.be.eql $('<span><div>a</div>test</span>').html()
-    it "should return the template and the content added before it", ->
       rule = new Rule
         '-': 'test',
         $('<div>a</div>')
@@ -211,6 +211,7 @@ describe 'Rule', ->
         '=': 'b',
         $('<span>x</span>')
       expect(asString rule.render()).to.be.eql $('<div>abc</div>').html()
+    # Parent Replacement
     it "should replace the root of the template with new content", ->
       rule = new Rule
         '=': 'test',
@@ -222,6 +223,77 @@ describe 'Rule', ->
         'span': 'test',
         $('<div><a>b</a></div>')
       expect(asString rule.render()).to.be.eql asString $('<a><span>test</span></a>')
+    # Selection Positioning
+    it "should add content before and after a selection", ->
+      rule = new Rule
+        'span-': ->$('<a>')
+        $('<div><span></span></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><a></a><span></span></div>')
+      rule = new Rule
+        'span+': ->$('<a>')
+        $('<div><span></span></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><span></span><a></a></div>')
+    it "should add content after a selection and then select off it", ->
+      rule = new Rule
+        'span+': ->$('<a>')
+        'a': 'test'
+        $('<div><span></span></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><span></span><a>test</a></div>')
+    it "should add content to the start and end of a selection", ->
+      rule = new Rule
+        'span<': ->$('<a>')
+        $('<div><span><p></p></span></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><span><a></a><p></p></span></div>')
+      rule = new Rule
+        'span>': ->$('<a>')
+        $('<div><span><p></p></span></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><span><p></p><a></a></span></div>')
+    it "should replace a selection", ->
+      rule = new Rule
+        'span=': ->$('<a>')
+        $('<div><span><p></p></span></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><a></a></div>')
+    # Multiple Selection Positioning
+    it "should add content before and after multiple selections", ->
+      rule = new Rule
+        'span-': ->$('<a>')
+        $('<div><span></span><span></span></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><a></a><span></span><a></a><span></span></div>')
+      rule = new Rule
+        'span+': ->$('<a>')
+        $('<div><span></span><span></span></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><span></span><a></a><span></span><a></a></div>')
+    it "should add content to the start and end of multiple selections", ->
+      rule = new Rule
+        'span<': ->$('<a>')
+        $('<div><span><p></p></span><span><h1></h1></span></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><span><a></a><p></p></span><span><a></a><h1></h1></span></div>')
+      rule = new Rule
+        'span>': ->$('<a>')
+        $('<div><span><p></p></span><span><h1></h1></span></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><span><p></p><a></a></span><span><h1></h1><a></a></span></div>')
+    it "should replace multiple selections", ->
+      rule = new Rule
+        'span=': ->$('<a>')
+        $('<div><span><p></p></span><span><h1></h1></span></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><a></a><a></a></div>')
+    # Selection Attributes
+    it "should alter attributes of a selection", ->
+      rule = new Rule
+        'span@class': 'test',
+        $('<div><span></span></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><span class="test"></span></div>')
+    it "should set the attributes of a complex selection", ->
+      rule = new Rule
+        'a span:nth-of-type(2)@class': 'test',
+        $('<div><a><span>a</span><h1>x</h1><span>b</span><span>c</span></a></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><a><span>a</span><h1>x</h1><span class="test">b</span><span>c</span></a></div>')
+    it "should alter attributes of multiple selections", ->
+      rule = new Rule
+        'span@class': 'test'
+        $('<div><span></span><span></span></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><span class="test"></span><span class="test"></span></div>')
+    # Sub Rules
     it "should select into a new scope and apply a new rule object to it", ->
       rule = new Rule
         'a':
@@ -246,16 +318,6 @@ describe 'Rule', ->
         '': {},
         $('<div>')
       expect(asString rule.render()).to.be.eql asString $('<div></div>')
-    it "should set the contents to the result of an array of functions", ->
-      rule = new Rule
-        'span': [(->@a), (->@b), (->@c)],
-        $('<div><span></span></div>')
-      expect(asString rule.render {a:'x',b:'y',c:'z'}).to.be.eql asString $('<div><span>xyz</span></div>')
-    it "should set the contents to the result of a function that returns an array of functions", ->
-      rule = new Rule
-        'span': -> ((i)->i*@x).bind(@, i) for i in [1...5],
-        $('<div><span></span></div>')
-      expect(asString rule.render {x: 2}).to.be.eql asString $('<div><span>2468</span></div>')
     it "should remove a selection then attempt to add to it", ->
       rule = new Rule
         'a':
@@ -277,6 +339,18 @@ describe 'Rule', ->
           '': 'c'
         $('<div><a>b</a></div>')
       expect(asString rule.render()).to.be.eql asString $('<div><a>c</a><a></a></div>')
+    # Arrays
+    it "should set the contents to the result of an array of functions", ->
+      rule = new Rule
+        'span': [(->@a), (->@b), (->@c)],
+        $('<div><span></span></div>')
+      expect(asString rule.render {a:'x',b:'y',c:'z'}).to.be.eql asString $('<div><span>xyz</span></div>')
+    it "should set the contents to the result of a function that returns an array of functions", ->
+      rule = new Rule
+        'span': -> ((i)->i*@x).bind(@, i) for i in [1...5],
+        $('<div><span></span></div>')
+      expect(asString rule.render {x: 2}).to.be.eql asString $('<div><span>2468</span></div>')
+    # Array of parents
     it "should append before each element in the parent array", ->
       rule = new Rule
         '-': ->$('<a>')
