@@ -16,11 +16,12 @@ class Rule
   # Map the data object to the template and return a new element populated with data
   # Optionally takes an element and applies modifications directly to that element
   render: (data, parent) ->
-    parent = Rule.toElementArray parent
+    toElementArray = (element) ->
+      if $.fn.isPrototypeOf(element) then element.get() else if element instanceof Node then [element] else element
+    parent = toElementArray parent
     # Set parent to a copy of the template if it is not already set
     if !parent?
-      parent = []
-      parent.push subparent.cloneNode true for subparent in Rule.toElementArray @template
+      parent = (subparent.cloneNode true for subparent in toElementArray @template)
     # scope is used to encapsulate any content added outside of the parent
     scope = parent[0..]
     for key, rule of @rule
@@ -64,7 +65,7 @@ class Rule
     # If null or undefined return as is to be ignored
     else if rule instanceof Node or !rule?
       rule
-    else if rule instanceof $
+    else if $.fn.isPrototypeOf(rule)
       if rule.length is 1 then rule.get(0) else rule.get()
     # If the object has a custom toString then use it
     else if rule.toString isnt Object::toString
@@ -119,9 +120,6 @@ class Rule
             parent.insertBefore element, target
         parent?.removeChild target if position is '='
       return if position in ['-', '+', '='] then result else selections
-
-  @toElementArray: (element) ->
-    if element instanceof $ then element.get() else if element instanceof Node then [element] else element
 
   # Parse the selector for selection, position and attribute
   @split: (selector) ->
