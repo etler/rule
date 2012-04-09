@@ -23,22 +23,22 @@ class Rule
       parent.push subparent.cloneNode true for subparent in Rule.toElementArray @template
     # scope is used to encapsulate any content added outside of the parent
     scope = parent[0..]
-    for selector, rule of @rule
-      [selector, attribute, position] = Rule.split selector
-      # Empty selector selects the parent
-      if selector?
-        selection = []
-        selection.push element for element in subparent.querySelectorAll(selector) for subparent in parent
-      else
-        selection = parent
-      # Add will return the elements that were added to the selection
-      result = Rule.add (Rule.parse rule, data, selection), selection, attribute, position
-      # If we are manipulating the parent and siblings
-      if !selector?
-        index = scope.indexOf parent[0]
-        length = parent.length
-        scope.splice index, length, result...
-        parent = result if position is '='
+    for key, rule of @rule
+      for subparent in parent[0..]
+        [selector, attribute, position] = Rule.split key
+        # Empty selector selects the parent
+        if selector?
+          selection = []
+          selection.push element for element in subparent.querySelectorAll(selector)
+        else
+          selection = [subparent]
+        # Add will return the elements that were added to the selection
+        result = Rule.add (Rule.parse rule, data, selection), selection, attribute, position
+        # If we are manipulating the parent and siblings
+        if !selector?
+          index = scope.indexOf subparent
+          scope.splice index, 1, result...
+          parent.splice (parent.indexOf subparent), 1, result... if position is '='
     return scope
 
   # Parse the rule to get the content object

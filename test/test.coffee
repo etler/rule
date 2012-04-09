@@ -175,6 +175,11 @@ describe 'Rule', ->
         'span': 'test',
         $('<div><span><a>a</a><a>b</a><a>c</a></span></div>')
       expect(asString rule.render()).to.be.eql asString $('<div><span>test</span></div>')
+    it "should not find the selection and do nothing", ->
+      rule = new Rule
+        'span': 'x',
+        $('<div><a></a></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><a></a></div>')
     it "should set the contents of multiple selections", ->
       rule = new Rule
         'span': 'test',
@@ -244,11 +249,6 @@ describe 'Rule', ->
           'div': 'c',
         $('<div><a><span>b</span></a><div></div></div>')
       expect(asString rule.render()).to.be.eql asString $('<div><a><span>b</span></a><div></div></div>')
-    it "should not find the selection and do nothing", ->
-      rule = new Rule
-        'span': 'x',
-        $('<div><a></a></div>')
-      expect(asString rule.render()).to.be.eql asString $('<div><a></a></div>')
     it "should select into a new scope, replace it, then select off of it", ->
       rule = new Rule
         'a':
@@ -256,6 +256,11 @@ describe 'Rule', ->
         'span': 'b',
         $('<div><a>b</a></div>')
       expect(asString rule.render()).to.be.eql asString $('<div><span>b</span></div>')
+    it "should select into a new scope and do nothing", ->
+      rule = new Rule
+        '': {},
+        $('<div>')
+      expect(asString rule.render()).to.be.eql asString $('<div></div>')
     it "should set the contents to the result of an array of functions", ->
       rule = new Rule
         'span': [(->@a), (->@b), (->@c)],
@@ -287,11 +292,6 @@ describe 'Rule', ->
           '': 'c'
         $('<div><a>b</a></div>')
       expect(asString rule.render()).to.be.eql asString $('<div><a>c</a><a></a></div>')
-    it "should do nothing if selector is given an empty object", ->
-      rule = new Rule
-        '': {},
-        $('<div>')
-      expect(asString rule.render()).to.be.eql asString $('<div></div>')
     it "should append before each element in the parent array", ->
       rule = new Rule
         '-': ->$('<a>')
@@ -302,5 +302,11 @@ describe 'Rule', ->
         '-': ->$('<a>')
         '=': ->$('<div>')
         $('<span></span><span></span><span></span>')
-      debugger
       expect(asString rule.render()).to.be.eql asString $('<a></a><div></div><a></a><div></div><a></a><div></div>')
+    it "should take array, append before, replace with array, then append after", ->
+      rule = new Rule
+        '-': ->$('<a>')
+        '=': [(->$ '<div>'), (->$ '<div>')]
+        '+': ->$('<p>')
+        $('<span></span><span></span>')
+      expect(asString rule.render()).to.be.eql asString $('<a></a><div></div><p></p><div></div><p></p><a></a><div></div><p></p><div></div><p></p>')
