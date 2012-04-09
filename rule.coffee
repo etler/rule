@@ -49,7 +49,9 @@ class Rule
       Rule.parse (rule.call data, selection), data, selection
     # Parse each item in the array and return the array
     else if rule instanceof Array
-      Rule.parse item, data, selection for item in rule
+      result = []
+      result = result.concat (Rule.parse item, data, selection) for item in rule
+      return result
     # Pass the data to the rule object, if the rule object
     # does not have a template then use the current selection
     # and apply changes directly to it. Return undefined in that case so
@@ -64,7 +66,7 @@ class Rule
     else if rule instanceof Node or !rule?
       rule
     else if $.fn.isPrototypeOf(rule)
-      if rule.length is 1 then rule.get(0) else rule.get()
+      rule.get()
     # If the object has a custom toString then use it
     else if rule.toString isnt Object::toString
       rule.toString()

@@ -37,10 +37,9 @@ describe 'Rule', ->
     it "should return the passed in HTMLElement", ->
       el = $('<div>')[0]
       expect(Rule.parse el).to.be el
-    it "should return the passed in jQuery object's contents", ->
-      el = $('<div>')
-      expect((Rule.parse el)).to.eql el.get(0)
     it "should return the passed in jQuery object's contents as an array", ->
+      el = $('<div>')
+      expect((Rule.parse el)).to.eql el.get()
       el = $('<div></div><span></span>')
       expect((Rule.parse el)).to.eql el.get()
     it "should return undefined", ->
