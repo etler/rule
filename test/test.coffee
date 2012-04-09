@@ -81,27 +81,27 @@ describe 'Rule', ->
     it "should add content before selection", ->
       c = $('<div>')
       e = $('<span>').appendTo c
-      r = Rule.add 'a', e, null, '-'
+      r = Rule.add 'a', e, null, '<'
       expect(asString c).to.be.eql asString $('<div>a<span></span></div>')
       expect(asString r).to.be.eql $('<div>a<span></span></div>').html()
     it "should add content after selection", ->
       c = $('<div>')
       e = $('<span>').appendTo c
-      r = Rule.add 'a', e, null, '+'
+      r = Rule.add 'a', e, null, '>'
       expect(asString c).to.be.eql asString $('<div><span></span>a</div>')
       expect(asString r).to.be.eql $('<div><span></span>a</div>').html()
     it "should add content as the first child of selection", ->
       c = $('<div>')
       e = $('<span>').appendTo c
       f = $('<span>').appendTo e
-      r = Rule.add 'a', e, null, '<'
+      r = Rule.add 'a', e, null, '-'
       expect(asString c).to.be.eql asString $('<div><span>a<span></span></span></div>')
       expect(asString r).to.be.eql $('<div><span>a<span></span></span></div>').html()
     it "should add content as the last child of selection", ->
       c = $('<div>')
       e = $('<span>').appendTo c
       f = $('<span>').appendTo e
-      r = Rule.add 'a', e, null, '>'
+      r = Rule.add 'a', e, null, '+'
       expect(asString c).to.be.eql asString $('<div><span><span></span>a</span></div>')
       expect(asString r).to.be.eql $('<div><span><span></span>a</span></div>').html()
     it "should set content to replace selection", ->
