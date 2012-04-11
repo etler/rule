@@ -24,14 +24,14 @@ Use whatever DOM object you want, made however you want...
     </div>
 
     dom = $('.template')
-    rule.bind(dom)
 
 
 ###Execution
 Build the populated template with the data you pass it...
 
-    rule.build
+    rule.render
       content: 'a string'
+      dom
 
 Reap the rewards.
 
@@ -44,10 +44,11 @@ Reap the rewards.
 How
 ---
 ###Rules
-The Rule constructor takes an object.
+The Rule constructor takes an object, and an optional template
 
     rule = new Rule
       '.data': ->@content
+      document.querySelector 'div'
 
 ####Keys
 The key is a selector for the element to populate.
@@ -63,15 +64,15 @@ You can add a position to point where to add the data to.
     '.data@type+'
 
 #####Positions
-**-**: jQuery's 'before' or concatenate before for attributes
+**-**: insert as previous sibling node or concatenate before with a space for attributes
 
-**+**: jQuery's 'after' or concatenate after for attributes
+**+**: insert as next sibling node or concatenate after with a space for attributes
 
-**=**: jQuery's 'replaceWith'
+**=**: replace the selected node with a new node
 
-**<**: jQuery's 'prepend'
+**<**: insert as first child node or concatenate immediately before for attributes
 
-**>**: jQuery's 'append'
+**>**: insert as last child node or concatenate immediately after for attributes
 
 ####Values
 Rules can have a variety of values.
@@ -97,7 +98,7 @@ Even another function...
     '.data': -> ->'inner'
 
 #####Arrays
-Each element in an array is concatenated together, before being added
+Each element in an array will be inserted in order to the given position
 
     '.data': ['R','U','L','E']
 
@@ -111,7 +112,7 @@ A Function can return an array
 
 It can be processed by another rule first
 
-    '.data': ->itemRule.build item for item in @list
+    '.data': ->itemRule.render item for item in @list
 
 #####Rules
 A rule can be another rule.
@@ -120,7 +121,7 @@ A rule can be another rule.
 If it has a template, it will render with that.
 
 
-If it doesn't, it will use the current position in the template as its template
+If it doesn't, it will use the current selection of the rule and modify that
 
 
 #####Objects
@@ -149,17 +150,23 @@ The template can be whatever DOM object you want.
       <span class="content">
       </span>
     </div>
-    dom = $('.template')
+    dom = document.querySelector '.template'
 
-Just turn it into a jQuery DOM object, and you're good to go.
-    rule.bind(dom)
+It can also be an array of elements
 
-You need to tell your Rule what DOM object to use.
+    <div class="article"></div>
+    <div class="article"></div>
+    <div class="article"></div>
+    dom = document.querySelectorAll '.article'
+
+It can also be a jQuery (or similar) object
+
+    $ '<div><span></span></div>'
 
 ###Execution
 Pass whatever data you want to your Rule.
 
-    rule.build
+    rule.render
       content: 'a string'
 
 A DOM element will be returned.
@@ -172,37 +179,39 @@ A DOM element will be returned.
 
 If the data isn't there, it's just ignored
 
-  rule.build()
+    rule.render()
 
 Or choose how you want to react.
 
-  '.data=' ->@content ? ''
+    '.data=' ->@content ? ''
 
 The data class element is replaced with an empty string.
 
     <div class="template">
     </div>
 
+You can render to a specific dom instance
+
+    rule.render {}, document.querySelectorAll('.container')
+
 Why
 ---
-With rule you can seperate your DOM from your mappings, from your data. With generic selectors you can change your DM structure, and keep the same mappings, or change the mappings for a new data type and keep the same structure. They are no longer tied together, and you can use them how you like. With coffeescript you can have succinct code, with infinite power. Just use it wisely.
+With rule you can seperate your DOM from your mappings, from your data. With generic selectors you can change your DOM structure, and keep the same mappings, or change the mappings for a new data type and keep the same structure. They are no longer tied together, and you can use them how you like. With coffeescript you can have succinct code, with infinite power. Just use it wisely.
 
 
 Rule Object methods
 -------------------
-**new Rule(rule):** create a new Rule based on the rule object given in.
+**new Rule(rule, [template]):** create a new Rule based on the rule object given in, and an optional template. The template must be either an HTMLElement, an array of HTMLElements, or a jQuery like object that supports a 'get' method that returns an array of HTMLElements
 
-**.build(data, [template]):** build an html element with the given data.
-
-**.bind(template):** bind the rule to a jquery dom element to use as the template.
+**.render(data, [element]):** create an html element with the given data. If an optional element is given then apply modifications directly to it. The element parameter must meet the same type requirements of a template
 
 Rule Static methods
 ---------------------
-**Rule.split(selector):** takes a rule selector string and splits it into an array of [selector, attribute, position].
+**Rule.split(selector):** takes a rule selector string in the format of [selector]?(@[attribute])?[-+<>=]? and splits it into an array of [selector, attribute, position]. If one of the sections are not there it will be returned as undefined
 
-**Rule.parse(rule, data, selection):** takes the rule object binding and returns the data bound content based on its type.
+**Rule.parse(rule, data, selection):** takes the rule object binding and returns the data bound content based on its type. The return value will be either a Node object, a String, or an array of Node objects or Strings
 
-**Rule.add(content, selection, [attribute], [position]):** adds content to a selection or its attribute at the given position.
+**Rule.add(content, selection, [attribute], [position]):** adds content to a selection or its attribute at the given position. The selection and any added siblings will be returned.
 
 Examples
 --------
@@ -215,9 +224,9 @@ Examples
 #### Rule Object
     simple = new Rule
       '.content': ->@content
+      $ '.simple'
 #### Execution
-    simple.bind $ '#template > .simple'
-      ($ 'body').append simple.build
+    ($ 'body').append simple.render
         content: 'test'
 
 ### Embedded Object Example
@@ -231,6 +240,7 @@ Examples
         </div>
       </div>
     </div>
+
 #### Rule Object
     book = new Rule
       '.title': ->@title
@@ -238,10 +248,11 @@ Examples
         '.name':
           '.first': ->@author.first
           '.last': ->@author.last
-#### Execution
-    book.bind $ '#template > .book'
+      $ '.book'
 
-    ($ 'body').append book.build
+#### Execution
+
+    ($ 'body').append book.render
       title: 'The Hobbit'
       author:
         first: 'J. R. R.'
@@ -252,16 +263,17 @@ Examples
     <ul class="list">
       <li class="item"><span class="content"></span></li>
     </ul>
+
 #### Rule Object
     itemRule = new Rule
       '.content': ->@content ? 'default'
+      $ '.list'
     listRule = new Rule
-      '.': ->itemRule.build item for item in @list
-#### Execution
-    listRule.bind $ '#template > .list'
-    itemRule.bind $ '#template > .list > .item'
+      '.': ->itemRule.render item for item in @list
+      $ '.list > .item'
 
-    ($ 'body').append listRule.build
+#### Execution
+    ($ 'body').append listRule.render
       list: [{content: 'hello'}, {content: 'world'}, {}]
 
 
@@ -271,14 +283,15 @@ Examples
       <li class="location"></li>
       <div class="list"></div>
     </ul>
+
 #### Rule Object
     recursive = new Rule
       '.location': ->@location
-      '.list=': ->if @list then recursive.build item for item in @list
-#### Execution
-    recursive.bind $ '#template > .recursive'
+      '.list=': ->if @list then recursive.render item for item in @list
+      $ '.recursive'
 
-    ($ 'body').append recursive.build
+#### Execution
+    ($ 'body').append recursive.render
       location: 'USA'
       list:
         [
@@ -303,37 +316,21 @@ Examples
 
 Requirements
 ------------
-jQuery, or a library that implements the following
-
-  .add
-  .after
-  .append
-  .attr
-  .before
-  .clone
-  .contents
-  .empty
-  .find
-  .not
-  .parent
-  .prepend
-  .replaceWith
-
-Zepto has near support, but has the following issues:
-  .add does not add nodes in node order based on their position in the parent node
-  .clone is not implemented
-  .contents is not implemented
-  instanceof $ does not work because $ does not have the Zepto object prototype
+Rule has no hard requirements. 'indexOf' and 'querySelectorAll' are used but fallbacks are exposed if the browser does not support those methods. For querySelectorAll, if the browser does not support it, a jQuery like library may be used that correctly implements wrapping an HTMLElement or array of HTMLElements with '$', the 'find' method, and the 'get' method.
 
 Size
 ----
 Rule attempts to be as simplistic and small as possible while still providing a large amount of flexibility and power
 
 Here is a minified gzipped size comparison to some other client side templating libraries
-  rule:        0.71 kb
-  mustache:    2.01 kb
-  pure:        4.21 kb
-  jade:        8.19 kb
+
+  **rule:**        1.08 kb
+
+  **mustache:**    2.01 kb
+
+  **pure:**        4.21 kb
+
+  **jade:**        8.19 kb
 
 Thanks
 ------
