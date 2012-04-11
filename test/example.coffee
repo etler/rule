@@ -40,32 +40,40 @@ $ ->
 
 
   console.time('recursive')
+  listItem = new Rule
+    '': ->@location
+    '>': ->if @list? then recursive.render @
+    $ '.location'
   recursive = new Rule
-    '.location': ->@location
-    '>': ->if @list then recursive.render item for item in @list else ''
+    '': ->listItem.render item for item in @list
     $ '.recursive'
 
   recursive.render
-    location: 'USA'
     list:
       [
         {
-          location: 'California'
+          location: 'USA'
           list:
             [
-              { location: 'San Diego' }
-              { location: 'San Francisco' }
-              { location: 'San Jose' }
+              {
+                location: 'California'
+                list:
+                  [
+                    { location: 'San Diego' }
+                    { location: 'San Francisco' }
+                    { location: 'San Jose' }
+                  ]
+              }
+              {
+                location: 'Nevada'
+                list:
+                  [
+                    { location: 'Reno' }
+                    { location: 'Las Vegas' }
+                  ]
+              }
             ]
-        }
-        {
-          location: 'Nevada'
-          list:
-            [
-              { location: 'Reno' }
-              { location: 'Las Vegas' }
-            ]
-        }
-      ]
+          }
+        ]
     $ '.recursive'
   console.timeEnd('recursive')
