@@ -16,6 +16,14 @@ class Rule
   # Apply a rule to a cloned template, taking data that is passed to rule functions
   # Optionally takes an element and applies modifications directly to that element
   render: (data, parent) ->
+    # Compatibility fallbacks for certain browsers that don't support indexOf and querySelectorAll
+    indexOf = Array::indexOf ? (item) ->
+      for value, index in @
+        if index of @ and value is item
+         return index
+        return -1
+    querySelectorAll = HTMLElement::querySelectorAll ? (query) ->
+      (($ @).find query).get()
     # Converts a single Node object, or a jQuery style object
     # object to a javascript array of Node objects
     toElementArray = (element) ->
@@ -39,7 +47,7 @@ class Rule
         [selector, attribute, position] = Rule.split key
         # Empty selector selects the parent as an array
         if selector?
-          selection = (element for element in subparent.querySelectorAll selector)
+          selection = (element for element in querySelectorAll.call subparent, selector)
         else
           selection = [subparent]
         # Add will return the selection and sibling elements
@@ -47,8 +55,8 @@ class Rule
         # If we are manipulating the parent and siblings update scope and
         # parent to reflect change in top level structure
         if !selector?
-          scope.splice (scope.indexOf subparent), 1, result...
-          parent.splice (parent.indexOf subparent), 1, result... if position is '='
+          scope.splice (indexOf.call scope, subparent), 1, result...
+          parent.splice (indexOf.call parent, subparent), 1, result... if position is '='
     return scope
 
   # Parse the rule to get the content object
