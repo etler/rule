@@ -65,45 +65,45 @@ describe 'Rule', ->
   describe '::add', ->
     it "should prepend the attribute with content", ->
       e = $('<div class="b">')
-      expect(asString Rule.add 'a', e, 'class', '-').to.be.eql asString $('<div class="ab">')
+      expect(asString Rule.add 'a', e, 'class', '-').to.be.eql asString $('<div class="a b">')
     it "should append the attribute with content", ->
       e = $('<div class="a">')
-      expect(asString Rule.add 'b', e, 'class', '+').to.be.eql asString $('<div class="ab">')
+      expect(asString Rule.add 'b', e, 'class', '+').to.be.eql asString $('<div class="a b">')
     it "should add before the attribute with content", ->
       e = $('<div class="b">')
-      expect(asString Rule.add 'a', e, 'class', '<').to.be.eql asString $('<div class="a b">')
+      expect(asString Rule.add 'a', e, 'class', '<').to.be.eql asString $('<div class="ab">')
     it "should add after the attribute with content", ->
       e = $('<div class="a">')
-      expect(asString Rule.add 'b', e, 'class', '>').to.be.eql asString $('<div class="a b">')
+      expect(asString Rule.add 'b', e, 'class', '>').to.be.eql asString $('<div class="ab">')
     it "should set the attribute to content", ->
       e = $('<div class="b">')
       expect(asString Rule.add 'a', e, 'class').to.be.eql asString $('<div class="a">')
     it "should add content before selection", ->
       c = $('<div>')
       e = $('<span>').appendTo c
-      r = Rule.add 'a', e, null, '<'
+      r = Rule.add 'a', c, null, '<'
       expect(asString c).to.be.eql asString $('<div>a<span></span></div>')
-      expect(asString r).to.be.eql $('<div>a<span></span></div>').html()
+      expect(asString r).to.be.eql asString $('<div>a<span></span></div>')
     it "should add content after selection", ->
       c = $('<div>')
       e = $('<span>').appendTo c
-      r = Rule.add 'a', e, null, '>'
+      r = Rule.add 'a', c, null, '>'
       expect(asString c).to.be.eql asString $('<div><span></span>a</div>')
-      expect(asString r).to.be.eql $('<div><span></span>a</div>').html()
+      expect(asString r).to.be.eql asString $('<div><span></span>a</div>')
     it "should add content as the first child of selection", ->
       c = $('<div>')
       e = $('<span>').appendTo c
       f = $('<span>').appendTo e
-      r = Rule.add 'a', e, null, '-'
+      r = Rule.add 'a', f, null, '-'
       expect(asString c).to.be.eql asString $('<div><span>a<span></span></span></div>')
-      expect(asString r).to.be.eql $('<div><span>a<span></span></span></div>').html()
+      expect(asString r).to.be.eql $('<span>a<span></span></span>').html()
     it "should add content as the last child of selection", ->
       c = $('<div>')
       e = $('<span>').appendTo c
       f = $('<span>').appendTo e
-      r = Rule.add 'a', e, null, '+'
+      r = Rule.add 'a', f, null, '+'
       expect(asString c).to.be.eql asString $('<div><span><span></span>a</span></div>')
-      expect(asString r).to.be.eql $('<div><span><span></span>a</span></div>').html()
+      expect(asString r).to.be.eql $('<span><span></span>a</span>').html()
     it "should set content to replace selection", ->
       c = $('<div>')
       e = $('<span>').appendTo c
