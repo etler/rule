@@ -28,7 +28,7 @@ class Rule
     # object to a javascript array of Node objects
     toElementArray = (element) ->
       # Using $.fn instead of instanceof $ because zepto does not support latter
-      if $.fn.isPrototypeOf(element)
+      if $?.fn.isPrototypeOf(element)
         element.get()
       else if element instanceof Node
         [element]
@@ -86,7 +86,7 @@ class Rule
     else if rule instanceof Node or !rule?
       rule
     # A helper case for jQuery style objects.
-    else if $.fn.isPrototypeOf(rule)
+    else if $?.fn.isPrototypeOf(rule)
       rule.get()
     # If the object has a custom toString then use it
     else if rule.toString isnt Object::toString
