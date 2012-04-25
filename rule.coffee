@@ -10,8 +10,8 @@
 class Rule
   # Build a new Rule with a rule object and optional template
   constructor: (rule, template) ->
-    @rule = rule
-    @template = template
+    if rule? then @rule = rule
+    if template then @template = template
 
   # Apply a rule to a cloned template, taking data that is passed to rule functions
   # Optionally takes an element and applies modifications directly to that element

@@ -217,7 +217,7 @@ Examples
 --------
 
 ### Simple Example
-#### DOM Template
+#### Template
     <div class="simple">
       <span class="content"></span>
     </div>
@@ -230,7 +230,7 @@ Examples
         content: 'test'
 
 ### Embedded Object Example
-#### DOM Template
+#### Template
     <div class="book">
       <h1 class="title"></h1>
       <div class="author">
@@ -259,7 +259,7 @@ Examples
         last: 'Tolkien'
 
 ### Iteration Example
-#### DOM Template
+#### Template
     <ul class="list">
       <li class="item"><span class="content"></span></li>
     </ul>
@@ -278,7 +278,7 @@ Examples
 
 
 ### Recursion Example
-#### DOM Template
+#### Template
     <ul class="recursive">
       <li class="location"></li>
       <div class="list"></div>

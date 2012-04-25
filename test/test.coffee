@@ -152,6 +152,12 @@ describe 'Rule', ->
         'span@class': 'test',
         $('<div><span></span></div>')
       expect(asString rule.render()).to.be.eql asString $('<div><span class="test"></span></div>')
+    it "should set the attributes of a subparent", ->
+      rule = new Rule
+        'span':
+          '@class': 'test',
+        $('<div><span></span></div>')
+      expect(asString rule.render()).to.be.eql asString $('<div><span class="test"></span></div>')
     # Data insertion
     it "should set the contents based on a data object", ->
       rule = new Rule
@@ -381,3 +387,10 @@ describe 'Rule', ->
         '+': ->$('<p>')
         $('<span></span><span></span>')
       expect(asString rule.render()).to.be.eql asString $('<a></a><div></div><p></p><div></div><p></p><a></a><div></div><p></p><div></div><p></p>')
+    it "should extend the Rule class then render off it", ->
+      class Test extends Rule
+        rule:
+          '': 'test'
+        template:
+          $('<div></div>')
+      expect(asString (new Test).render()).to.be.eql asString $('<div>test</div>')
