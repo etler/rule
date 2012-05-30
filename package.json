@@ -1,19 +1,20 @@
 {
-  "name" : "Rule",
+  "name" : "rule",
   "version" : "v0.2.0",
   "description" : "Coffeescript friendly css selector based templating",
   "keywords" : [ "coffeescript", "template", "templating", "css", "selector", "mapping", "pure", "dom", "manipulation" ],
   "homepage" : "http://www.rulejs.com",
   "author" : "Tim Etler <tmetler@gmail.com> (http://www.timetler.com)",
-  "main" : "./rule.coffee",
+  "main" : "./rule.js",
   "repository" :
     { "type" : "git"
     , "url" : "git@github.com:etler/Rule.git" },
   "dependencies" :
-    { "coffee-script": "*" },
+    { "coffee-script" : "*" },
   "optionalDependencies" :
-    { "jsdom": "*" },
-  "devDependencies":
-    { "should": "*"
-    , "mocha": "*" }
+    { "jsdom" : "*" },
+  "devDependencies" :
+    { "expect.js" : "*"
+    , "mocha" : "*" },
+  "scripts" : { "prepublish" : "npm prune", "test": "cake test", "install" : "cake build" }
 }
