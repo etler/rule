@@ -6,7 +6,6 @@
 # Copyright 2012, Tim Etler
 # Licensed under the MIT or GPL Version 2 licenses.
 
-@.Rule =
 class Rule
   # Build a new Rule with a rule object and optional template
   constructor: (rule, template) ->
@@ -16,21 +15,22 @@ class Rule
   # Apply a rule to a cloned template, taking data that is passed to rule functions
   # Optionally takes an element and applies modifications directly to that element
   render: (data, parent) ->
+    env = @constructor.env
     # Compatibility fallbacks for certain browsers that don't support indexOf and querySelectorAll
     indexOf = Array::indexOf ? (item) ->
       for value, index in @
         if index of @ and value is item
          return index
         return -1
-    querySelectorAll = HTMLElement::querySelectorAll ? (query) ->
-      (($ @).find query).get()
+    querySelectorAll = env.HTMLElement::querySelectorAll ? (query) ->
+      ((env.$ @).find query).get()
     # Converts a single Node object, or a jQuery style object
     # object to a javascript array of Node objects
     toElementArray = (element) ->
       # Using $.fn instead of instanceof $ because zepto does not support latter
-      if $?.fn.isPrototypeOf(element)
+      if env.$?.fn.isPrototypeOf(element)
         element.get()
-      else if element instanceof Node
+      else if element instanceof env.Node
         [element]
       else element
     # Insures optional passed in parent element is an array of Nodes
@@ -44,14 +44,17 @@ class Rule
       # Apply each rule to each parent object.
       # Applied to a copy of parent because parent may change during application
       for subparent in parent[0..]
-        [selector, attribute, position] = Rule.split key
+        [selector, attribute, position] = @constructor.split key
         # Empty selector selects the parent as an array
         if selector?
-          selection = (element for element in querySelectorAll.call subparent, selector)
+          if subparent.querySelectorAll?
+            selection = (element for element in subparent.querySelectorAll selector)
+          else
+            selection = (element for element in querySelectorAll.call subparent, selector)
         else
           selection = [subparent]
         # Add will return the selection and sibling elements
-        result = Rule.add (Rule.parse rule, data, selection), selection, attribute, position
+        result = @constructor.add (@constructor.parse rule, data, selection, this), selection, attribute, position
         # If we are manipulating the parent and siblings update scope and
         # parent to reflect change in top level structure
         if !selector?
@@ -60,16 +63,16 @@ class Rule
     return scope
 
   # Parse the rule to get the content object
-  @parse: (rule, data, selection) ->
+  @parse: (rule, data, selection, context) ->
     # If statments are used throughout instead of switches
     # because they compile to smaller javascript
     # Bind the function to the data and current selection and parse its results
     if rule instanceof Function
-      Rule.parse (rule.call data, selection), data, selection
+      @parse (rule.call data, selection, context), data, selection, context
     # Parse each item in the array and return a flat array
     else if rule instanceof Array
       result = []
-      result = result.concat (Rule.parse item, data, selection) for item in rule
+      result = result.concat (@parse item, data, selection, context) for item in rule
       return result
     # Pass the data to the rule object, if the rule object
     # does not have a template then use the current selection
@@ -83,7 +86,7 @@ class Rule
         return undefined
     # Return objects that can be added to the dom directly as is
     # If null or undefined return as is to be ignored
-    else if rule instanceof Node or !rule?
+    else if rule instanceof @env.Node or !rule?
       rule
     # A helper case for jQuery style objects.
     else if $?.fn.isPrototypeOf(rule)
@@ -94,7 +97,7 @@ class Rule
     # If the object does not have a custom toString
     # create a new rule from the object
     else if Object::isPrototypeOf rule
-      Rule.parse (new Rule rule), data, selection
+      @.parse (new Rule rule), data, selection, context
 
   # Add a content object to an array of selection or attributes
   # of the selections at the position specified
@@ -136,14 +139,14 @@ class Rule
         content = [content] if !(content instanceof Array)
         for element in content
           # If content is not a DOM Node already, always convert to a TextNode
-          element = if !(element instanceof Node) then document.createTextNode element else element.cloneNode(true)
+          element = if !(element instanceof @.env.Node) then @.env.document.createTextNode element else element.cloneNode(true)
           # Add selection either before or after in the right order
           result.push selection if position is '+'
           result.push element
           result.push selection if position is '-'
           # Parent must be an HTMLElement to insure we can add to it
           # We can assume parent is a Node, but not all Nodes can be added too
-          if parent instanceof HTMLElement
+          if parent instanceof @.env.HTMLElement
             parent.insertBefore element, target
         # If position is =, the old selection must be removed
         parent?.removeChild target if position is '='
@@ -159,3 +162,13 @@ class Rule
     [selector, attribute] = key.split('@', 2)
     selector = undefined if selector is ''
     return [selector, attribute, position]
+
+  @env: window ? undefined
+
+if window? and @ is window and (window.toString() in ['[object DOMWindow]', '[object Window]'])
+  console.log 'window'
+  window.Rule = Rule
+else
+  exports.Rule = Rule
+
+return Rule
