@@ -394,3 +394,19 @@ describe 'Rule', ->
         template:
           $('<div></div>')
       expect(asString (new Test).render()).to.be.eql asString $('<div>test</div>')
+    it "should extend the Rule class then set the contents of a nested element", ->
+      class Test extends Rule
+        rule:
+          '.test':
+            '': 'test'
+        template:
+          $('<div><p><span class="test"></span></p></div>')
+      expect(asString (new Test).render()).to.be.eql asString $('<div><p><span class="test">test</span></p></div>')
+    it "should extend the Rule class then replace the contents of a nested element", ->
+      class Test extends Rule
+        rule:
+          '.test':
+            '=': 'test'
+        template:
+          $('<div><p><span class="test"></span></p></div>')
+      expect(asString (new Test).render()).to.be.eql asString $('<div><p>test</p></div>')
