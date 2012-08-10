@@ -9,6 +9,9 @@ rule.js
 
 What
 ----
+
+Rule is a templating library that uses css selectors to select elements, and then applies a value to that element. That value can be a string, DOM element, array, function, or even another rule. Strings are inserted as text nodes to protect against XSS. DOM elements can be created however you want. Iteration is done by returning an array. Functions are evaluated and can return any other type (even another function). A rule will be evaluated and return a DOM element. The power of the library comes from combining these fundamental types. For example, a function can return an array, of rules that evaluate to DOM elements. How you use these types is up to you and the possibilities are endless.
+
 ###Rule
 Choose where your data goes and how...
 
