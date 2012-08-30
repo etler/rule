@@ -165,10 +165,12 @@ class Rule
 
   @env: window ? undefined
 
-if window? and @ is window and (window.toString() in ['[object DOMWindow]', '[object Window]'])
-  console.log 'window'
-  window.Rule = Rule
-else
+# Test if the javascript environment is node, or the browser
+# In node module is defined within the global closure,
+# but 'this' is an empty object
+if module? and @module isnt module
   exports.Rule = Rule
+else
+  window.Rule = Rule
 
 return Rule
