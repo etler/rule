@@ -133,7 +133,7 @@ You can have an object within the object. It is made into a new rule and the par
     '.data':
       '.inner': ->@content
 
-#####HTML Elements and jQuery objects
+#####HTML Elements and jQuery (or compatible) objects
 The passed in object will be added as it is.
 
 #####Objects with toString
@@ -162,7 +162,7 @@ It can also be an array of elements
     <div class="article"></div>
     dom = document.querySelectorAll '.article'
 
-It can also be a jQuery (or similar) object
+It can also be a jQuery (or compatible) object
 
     $ '<div><span></span></div>'
 
@@ -204,7 +204,7 @@ With rule you can seperate your DOM from your mappings, from your data. With gen
 
 Rule Object methods
 -------------------
-**new Rule(rule, [template]):** create a new Rule based on the rule object given in, and an optional template. The template must be either an HTMLElement, an array of HTMLElements, or a jQuery like object that supports a 'get' method that returns an array of HTMLElements
+**new Rule(rule, [template]):** create a new Rule based on the rule object given in, and an optional template. The template must be either an HTMLElement, an array of HTMLElements, or a jQuery compatible object that supports a 'get' method that returns an array of HTMLElements
 
 **.render(data, [element]):** create an html element with the given data. If an optional element is given then apply modifications directly to it. The element parameter must meet the same type requirements of a template
 
@@ -319,7 +319,7 @@ Examples
 
 Requirements
 ------------
-Rule has no hard requirements. 'indexOf' and 'querySelectorAll' are used but fallbacks are exposed if the browser does not support those methods. For querySelectorAll, if the browser does not support it, a jQuery like library may be used that correctly implements wrapping an HTMLElement or array of HTMLElements with '$', the 'find' method, and the 'get' method.
+Rule has no hard requirements and will work as is on newer browsers. 'indexOf' and 'querySelectorAll' are used but fallbacks are exposed if the browser does not support those methods. For querySelectorAll, if the browser does not support it, a jQuery compatible library may be used that correctly implements wrapping an HTMLElement or array of HTMLElements with '$', the 'find' method, and the 'get' method.
 
 Size
 ----
