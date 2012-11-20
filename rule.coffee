@@ -108,7 +108,7 @@ class Rule
     result = []
     for selection in selections
       # Attribute is specified, so modify attribute
-      if attribute
+      if attribute? and content?
         content = content.join('') if content instanceof Array
         previous = (selection.getAttribute attribute) ? ''
         selection.setAttribute attribute,

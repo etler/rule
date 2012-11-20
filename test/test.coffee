@@ -1,6 +1,22 @@
+Rule = @Rule
+expect = @expect
+$ = @$
+document = @document
+
 describe 'Rule', ->
   asString = (object) ->
     $('<div>').append($ object).html()
+  before (done) ->
+    if module? and @module isnt module
+      Rule = require('../rule').Rule
+      should = require 'should'
+      jsdom  = require 'jsdom'
+      document = jsdom.jsdom()
+      jsdom.jQueryify (Rule.env = document.createWindow()), 'http://code.jquery.com/jquery-1.7.2.min.js', ->
+        $ = Rule.env.$
+        done()
+    else
+      done()
   describe '::split', ->
     selectors = [undefined, 'div', '.a', '.a-b', '["a=b"]', 'div:nth-child(n)', 'div > span', 'div + span']
     attributes = [undefined, 'a', 'a-b']
@@ -10,7 +26,6 @@ describe 'Rule', ->
         for attribute in attributes
           for position in positions
             expect(Rule.split (selector ? '')+(if attribute then '@'+attribute else '')+(position ? '')).to.be.eql [selector, attribute, position]
-      return
   describe '::parse', ->
     it "should return the parsed result of the function bound to data", ->
       expect(Rule.parse (->@), 'a').to.be.eql 'a'
@@ -158,6 +173,11 @@ describe 'Rule', ->
           '@class': 'test',
         $('<div><span></span></div>')
       expect(asString rule.render()).to.be.eql asString $('<div><span class="test"></span></div>')
+    it "should not set the attribute if the content is undefined", ->
+      rule = new Rule
+        '@class': 'test',
+        $('<div>')
+      expect(asString rule.render()).to.be.eql asString $('<div class="test"></div>')
     # Data insertion
     it "should set the contents based on a data object", ->
       rule = new Rule
