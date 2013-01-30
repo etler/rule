@@ -54,7 +54,7 @@ class Rule
         else
           selection = [subparent]
         # Add will return the selection and sibling elements
-        result = @constructor.add (@constructor.parse rule, data, selection, this), selection, attribute, position
+        result = @constructor.add (@constructor.parse.bind @constructor, rule, data, selection, @), selection, attribute, position
         # If we are manipulating the parent and siblings update scope and
         # parent to reflect change in top level structure
         if !selector?
@@ -97,16 +97,22 @@ class Rule
     # If the object does not have a custom toString
     # create a new rule from the object
     else if Object::isPrototypeOf rule
-      @.parse (new Rule rule), data, selection, context
+      @parse (new Rule rule), data, selection, context
 
   # Add a content object to an array of selection or attributes
   # of the selections at the position specified
   # Returns the selections and any siblings as an array of Nodes
-  @add: (content, selections, attribute, position) ->
-    # Nothing to do here
-    return selections if not (content?)
+  @add: (generator, selections, attribute, position) ->
     result = []
+    # Make sure content generator is always a generator
+    if !(generator instanceof Function)
+      # The generator value is bound so the value within the closure
+      # will not be overwritten
+      generator = ((value) -> value).bind(@, generator)
     for selection in selections
+      content = do generator
+      # Nothing to do here
+      continue unless content?
       # Attribute is specified, so modify attribute
       if attribute? and content?
         content = content.join('') if content instanceof Array
@@ -139,14 +145,15 @@ class Rule
         content = [content] if !(content instanceof Array)
         for element in content
           # If content is not a DOM Node already, always convert to a TextNode
-          element = if !(element instanceof @.env.Node) then @.env.document.createTextNode element else element.cloneNode(true)
+          element =
+            if !(element instanceof @env.Node) then @env.document.createTextNode element else element
           # Add selection either before or after in the right order
           result.push selection if position is '+'
           result.push element
           result.push selection if position is '-'
           # Parent must be an HTMLElement to insure we can add to it
           # We can assume parent is a Node, but not all Nodes can be added too
-          if parent instanceof @.env.HTMLElement
+          if parent instanceof @env.HTMLElement
             parent.insertBefore element, target
         # If position is =, the old selection must be removed
         parent?.removeChild target if position is '='
