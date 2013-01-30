@@ -22,7 +22,8 @@ class Rule
         if index of @ and value is item
          return index
         return -1
-    querySelectorAll = env.HTMLElement::querySelectorAll ? (query) ->
+    # Hack to support IE8, does not support accessing DOM constructors
+    querySelectorAll = env.document.createElement('div').querySelectorAll ? (query) ->
       ((env.$ @).find query).get()
     # Converts a single Node object, or a jQuery style object
     # object to a javascript array of Node objects
