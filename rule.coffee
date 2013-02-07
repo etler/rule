@@ -3,7 +3,7 @@
 # http://rulejs.com
 # http://github.com/etler/rule
 #
-# Copyright 2012, Tim Etler
+# Copyright 2012, Tim Etler (tmetler@gmail.com)
 # Licensed under the MIT or GPL Version 2 licenses.
 
 class Rule
