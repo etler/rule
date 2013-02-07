@@ -430,3 +430,30 @@ describe 'Rule', ->
         template:
           $('<div><p><span class="test"></span></p></div>')
       expect(asString (new Test).render()).to.be.eql asString $('<div><p>test</p></div>')
+    it "should extend an extended Rule, and then apply both rules in order of oldest first", ->
+      class Test extends Rule
+        rule:
+          '.test': 'X'
+          '.test2': 'X'
+        template:
+          $('<div><p><span class="test"></span><span class="test2"></span></p></div>')
+      class Test2 extends Test
+        rule:
+          '.test2': 'Y'
+      expect(asString (new Test2).render()).to.be.eql asString $('<div><p><span class="test">X</span><span class="test2">Y</span></p></div>')
+    it "should extend an extended Rule twice, and then apply both rules in order of oldest first", ->
+      class Test extends Rule
+        rule:
+          '.test': 'X'
+          '.test2': 'X'
+          '.test3': 'X'
+        template:
+          $('<div><p><span class="test"></span><span class="test2"></span><span class="test3"></span></p></div>')
+      class Test2 extends Test
+        rule:
+          '.test2': 'Y'
+          '.test3': 'Y'
+      class Test3 extends Test2
+        rule:
+          '.test3': 'Z'
+      expect(asString (new Test3).render()).to.be.eql asString $('<div><p><span class="test">X</span><span class="test2">Y</span><span class="test3">Z</span></p></div>')
