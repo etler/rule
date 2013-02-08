@@ -10,9 +10,7 @@
     { "type" : "git"
     , "url" : "git@github.com:etler/Rule.git" },
   "dependencies" :
-    { "coffee-script" : "*" },
-  "optionalDependencies" :
-    { "jsdom" : "*" },
+    { "coffee-script" : ">1.3.0" },
   "devDependencies" :
     { "expect.js" : "*"
     , "mocha" : "*" },
