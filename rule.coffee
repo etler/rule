@@ -9,8 +9,8 @@
 class Rule
   # Build a new Rule with a rule object and optional template
   constructor: (rule, template) ->
-    if rule? then @rule = rule
-    if template then @template = template
+    @rule = rule if rule
+    @template = template if template
 
   # Apply a rule to a cloned template, taking data that is passed to rule functions
   # Optionally takes an element and applies modifications directly to that element
@@ -56,7 +56,7 @@ class Rule
     # Insures optional passed in parent element is an array of Nodes
     parent = toElementArray parent
     # Set parent to a copy of the template if it is not already set
-    if !parent?
+    if !parent
       parent = (subparent.cloneNode true for subparent in toElementArray @template)
     # scope is used to encapsulate any content added outside of the parent
     scope = parent[0..]
