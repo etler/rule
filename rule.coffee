@@ -60,33 +60,39 @@ class Rule
       parent = (subparent.cloneNode true for subparent in toElementArray @template)
     # scope is used to encapsulate any content added outside of the parent
     scope = parent[0..]
-    # Recursive function to apply all prototype rules in order of
-    # deepest prototype rule first
-    applyRules = (object) ->
-      # Not using getPrototype of to support IE
-      applyRules.call @, getPrototypeOf object unless object.constructor is Rule
-      rules = object.rule
-      for key, rule of rules
-        # Apply each rule to each parent object.
-        # Applied to a copy of parent because parent may change during application
-        for subparent in parent[0..]
-          [selector, attribute, position] = @constructor.split key
-          # Empty selector selects the parent as an array
-          if selector?
-            if subparent.querySelectorAll?
-              selection = (element for element in subparent.querySelectorAll selector)
-            else
-              selection = (element for element in querySelectorAll.call subparent, selector)
+
+    # A recursive function to combine all prototype rules so they are
+    # applied with the oldest prototype rules first.
+    combineRules = (object) ->
+      if (object.hasOwnProperty 'constructor') and (object.constructor is Rule)
+        return {}
+      rules = combineRules getPrototypeOf object
+      if object.hasOwnProperty 'rule'
+        for key, rule of object.rule
+          rules[key] = rule
+      return rules
+
+    rules = combineRules @
+    for key, rule of rules
+      # Apply each rule to each parent object.
+      # Applied to a copy of parent because parent may change during application
+      for subparent in parent[0..]
+        [selector, attribute, position] = @constructor.split key
+        # Empty selector selects the parent as an array
+        if selector?
+          if subparent.querySelectorAll?
+            selection = (element for element in subparent.querySelectorAll selector)
           else
-            selection = [subparent]
-          # Add will return the selection and sibling elements
-          result = @constructor.add (@constructor.parse.bind @constructor, rule, data, selection, @), selection, attribute, position
-          # If we are manipulating the parent and siblings update scope and
-          # parent to reflect change in top level structure
-          if !selector?
-            scope.splice (indexOf.call scope, subparent), 1, result...
-            parent.splice (indexOf.call parent, subparent), 1, result... if position is '='
-    applyRules.call @, @
+            selection = (element for element in querySelectorAll.call subparent, selector)
+        else
+          selection = [subparent]
+        # Add will return the selection and sibling elements
+        result = @constructor.add (@constructor.parse.bind @constructor, rule, data, selection, @), selection, attribute, position
+        # If we are manipulating the parent and siblings update scope and
+        # parent to reflect change in top level structure
+        if !selector?
+          scope.splice (indexOf.call scope, subparent), 1, result...
+          parent.splice (indexOf.call parent, subparent), 1, result... if position is '='
     return scope
 
   # Parse the rule to get the content object
