@@ -457,3 +457,13 @@ describe 'Rule', ->
         rule:
           '.test3': 'Z'
       expect(asString (new Test3).render()).to.be.eql asString $('<div><p><span class="test">X</span><span class="test2">Y</span><span class="test3">Z</span></p></div>')
+    it "should extend an extended Rule, and then apply just the childmost overwritten rule", ->
+      class Test extends Rule
+        rule:
+          '.test<': 'X'
+        template:
+          $('<div><p><span class="test"></span></p></div>')
+      class Test2 extends Test
+        rule:
+          '.test<': 'Y'
+      expect(asString (new Test2).render()).to.be.eql asString $('<div><p><span class="test">Y</span></p></div>')
