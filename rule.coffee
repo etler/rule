@@ -26,7 +26,7 @@ class Rule
     querySelectorAll = env.document.createElement('div').querySelectorAll ? (query) ->
       ((env.$ @).find query).get()
     # Shim to support IE8, does not support getObjectPrototype
-    getPrototypeOf = (object) ->
+    getPrototypeOf = Object.getPrototypeOf ? (object) ->
       prototype = object.constructor.prototype
       # Someone has put a constructor property on an object instance.
       # How dumb.
