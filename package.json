@@ -9,6 +9,8 @@
   "repository" :
     { "type" : "git"
     , "url" : "git@github.com:etler/Rule.git" },
+  "dependencies" :
+    { "sub" : "*" },
   "devDependencies" :
     { "coffee-script" : ">1.3.0"
     , "expect.js" : "*"
