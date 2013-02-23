@@ -4,7 +4,9 @@
   <title>Mocha Tests</title>
   <script src="../rule.js"></script>
   <link type="text/css" rel="stylesheet" href="mocha.css" />
+  <!--
   <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+  -->
   <!-- To test with zepto
   <script src="http://zeptojs.com/zepto.min.js"></script>
   -->
@@ -12,14 +14,11 @@
   <script src="https://raw.github.com/visionmedia/mocha/master/mocha.js"></script>
   <script>mocha.setup('bdd')</script>
   <script src="test.js"></script>
-  <script>
-    $(function(){
-      mocha
-        .run()
-    })
-  </script>
 </head>
 <body>
   <div id="mocha"></div>
+  <script>
+    mocha.run()
+  </script>
 </body>
 </html>
