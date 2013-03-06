@@ -15,44 +15,6 @@ class Rule
   # Apply a rule to a cloned template, taking data that is passed to rule functions
   # Optionally takes an element and applies modifications directly to that element
   render: (data, parent) ->
-    env = @constructor.env
-    # Compatibility fallbacks for certain browsers that don't support indexOf and querySelectorAll
-    indexOf = Array::indexOf ? (item) ->
-      for value, index in @
-        if index of @ and value is item
-         return index
-        return -1
-    # Hack to support IE8, does not support accessing DOM constructors
-    querySelectorAll = env.document.createElement('div').querySelectorAll ? (query) ->
-      ((env.$ @).find query).get()
-    # Shim to support IE8, does not support getObjectPrototype
-    getPrototypeOf = Object.getPrototypeOf ? (object) ->
-      prototype = object.constructor.prototype
-      # Someone has put a constructor property on an object instance.
-      # How dumb.
-      # (Even dumber is if someone overwrote the prototype's constructor
-      #  property, but you can also overwrite Object.getPrototypeOf, so we
-      #  can only handle so much.)
-      if (object.hasOwnProperty 'constructor' and object isnt prototype) or
-          # Or object is already the prototype
-          object is prototype
-        # If the object is currently the prototype, delete its constructor to
-        # expose the prototype's prototype's constructor which contains the
-        # prototype's prototype. Then put the constructor back where it was.
-        constructor = object.constructor
-        delete object.constructor
-        prototype = object.constructor.prototype
-        object.constructor = constructor
-      return prototype
-    # Converts a single Node object, or a jQuery style object
-    # object to a javascript array of Node objects
-    toElementArray = (element) ->
-      # Using $.fn instead of instanceof $ because zepto does not support latter
-      if env.$?.fn.isPrototypeOf(element)
-        element.get()
-      else if element instanceof env.Node
-        [element]
-      else element
     # Insures optional passed in parent element is an array of Nodes
     parent = toElementArray parent
     # Set parent to a copy of the template if it is not already set
@@ -60,18 +22,6 @@ class Rule
       parent = (subparent.cloneNode true for subparent in toElementArray @template)
     # scope is used to encapsulate any content added outside of the parent
     scope = parent[0..]
-
-    # A recursive function to combine all prototype rules so they are
-    # applied with the oldest prototype rules first.
-    combineRules = (object) ->
-      if (object.hasOwnProperty 'constructor') and (object.constructor is Rule)
-        return {}
-      rules = combineRules getPrototypeOf object
-      if object.hasOwnProperty 'rule'
-        for key, rule of object.rule
-          rules[key] = rule
-      return rules
-
     rules = combineRules @
     for key, rule of rules
       # Apply each rule to each parent object.
@@ -204,6 +154,58 @@ class Rule
     return [selector, attribute, position]
 
   @env: window ? undefined
+
+  # Compatibility fallbacks for certain browsers that don't support indexOf and querySelectorAll
+  indexOf = Array::indexOf ? (item) ->
+    for value, index in @
+      if index of @ and value is item
+       return index
+      return -1
+  querySelectorAll = ((query) ->
+    # Hack to support IE8, does not support accessing DOM constructors
+    querySelectorAll = @env.document.createElement('div').querySelectorAll ? (query) -> ((@env.$ @).find query).get()
+    querySelectorAll(query)
+  ).bind(@)
+  # Shim to support IE8, does not support getObjectPrototype
+  getPrototypeOf = Object.getPrototypeOf ? (object) ->
+    prototype = object.constructor.prototype
+    # Someone has put a constructor property on an object instance.
+    # How dumb.
+    # (Even dumber is if someone overwrote the prototype's constructor
+    #  property, but you can also overwrite Object.getPrototypeOf, so we
+    #  can only handle so much.)
+    if (object.hasOwnProperty 'constructor' and object isnt prototype) or
+        # Or object is already the prototype
+        object is prototype
+      # If the object is currently the prototype, delete its constructor to
+      # expose the prototype's prototype's constructor which contains the
+      # prototype's prototype. Then put the constructor back where it was.
+      constructor = object.constructor
+      delete object.constructor
+      prototype = object.constructor.prototype
+      object.constructor = constructor
+    return prototype
+  # Converts a single Node object, or a jQuery style object
+  # object to a javascript array of Node objects
+  toElementArray = ((element) ->
+    # Using $.fn instead of instanceof $ because zepto does not support latter
+    if @env.$?.fn.isPrototypeOf(element)
+      element.get()
+    else if element instanceof @env.Node
+      [element]
+    else element
+  ).bind(@)
+
+  # A recursive function to combine all prototype rules so they are
+  # applied with the oldest prototype rules first.
+  combineRules = (object) ->
+    if (object.hasOwnProperty 'constructor') and (object.constructor is Rule)
+      return {}
+    rules = combineRules getPrototypeOf object
+    if object.hasOwnProperty 'rule'
+      for key, rule of object.rule
+        rules[key] = rule
+    return rules
 
 # Test if the javascript environment is node, or the browser
 # In node module is defined within the global closure,
