@@ -72,7 +72,7 @@ class Rule
     else if rule instanceof @env.Node or !rule?
       rule
     # A helper case for jQuery style objects.
-    else if $?.fn.isPrototypeOf(rule)
+    else if @env.$?.fn.isPrototypeOf(rule)
       rule.get()
     # If the object has a custom toString then use it
     else if rule.toString isnt Object::toString
