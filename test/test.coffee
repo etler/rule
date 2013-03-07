@@ -471,3 +471,25 @@ describe 'Rule', ->
         rule:
           '.test<': 'Y'
       expect(asString (new Test2).render()).to.be.eql asString makeNode('<div><p><span class="test">Y</span></p></div>')
+    it "should extend the Rule class and overwrite the preparse function", ->
+      class Test extends Rule
+      Test.preparse = (rule, data, selection, context) ->
+        if typeof rule is 'string' or rule instanceof String
+          return rule+'suffix'
+      rule = new Test
+        '.test': 'X'
+        makeNode('<div><span class="test"></span></div>')
+      expect(asString rule.render()).to.be.eql asString makeNode('<div><span class="test">Xsuffix</span></div>')
+    it "should extend the Rule class and overwrite the preparse function and parse other rules that haven't been blocked", ->
+      class Class
+      class Test extends Rule
+      Test.preparse = (rule, data, selection, context) ->
+        if rule instanceof Class
+          return 'class'
+      rule = new Test
+        '.test': new Class
+        '.test2': 'test'
+        makeNode('<div><span class="test"></span><span class="test2"></span></div>')
+      expect(asString rule.render()).to.be.eql asString makeNode('<div><span class="test">class</span><span class="test2">test</span></div>')
+
+

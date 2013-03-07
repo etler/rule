@@ -45,12 +45,23 @@ class Rule
           parent.splice (indexOf.call parent, subparent), 1, result... if position is '='
     return scope
 
+  # This is an empty filler function on the Rule object for preparsing.
+  # The preparse function is called before the parse function to
+  # allow for custom rule data types.
+  # If a null value is returned it will be ignored.
+  @preparse: ->
+
   # Parse the rule to get the content object
   @parse: (rule, data, selection, context) ->
+    # Call the preparse function before the build in parsing to
+    # allow for user defined data type results
+    preparsedResult = (@preparse rule, data, selection, context)
     # If statments are used throughout instead of switches
     # because they compile to smaller javascript
+    if preparsedResult?
+      return preparsedResult
     # Bind the function to the data and current selection and parse its results
-    if rule instanceof Function
+    else if rule instanceof Function
       @parse (rule.call data, selection, context), data, selection, context
     # Parse each item in the array and return a flat array
     else if rule instanceof Array
