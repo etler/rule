@@ -21,12 +21,14 @@ class Rule
     if !parent
       parent = (subparent.cloneNode true for subparent in toElementArray @template)
     # scope is used to encapsulate any content added outside of the parent
+    # parent array is duplicated
     scope = parent[0..]
     rules = combineRules @
     for key, rule of rules
       # Apply each rule to each parent object.
       # Applied to a copy of parent because parent may change during application
       for subparent in parent[0..]
+        continue if subparent not instanceof @constructor.env.Element
         [selector, attribute, position] = @constructor.split key
         # Empty selector selects the parent as an array
         if selector?
@@ -106,7 +108,7 @@ class Rule
     for selection in selections
       content = do generator
       # Nothing to do here
-      continue unless content?
+      continue unless content? and selection instanceof @env.Element
       # Attribute is specified, so modify attribute
       if attribute? and content?
         content = content.join('') if content instanceof Array
