@@ -204,11 +204,11 @@ describe 'Rule', ->
         'span': 'x',
         makeNode('<div><a></a></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><a></a></div>')
-    it "should set the contents of a complex selection", ->
-      rule = new Rule
-        'a span:nth-of-type(2)': 'test',
-        makeNode('<div><a><span>a</span><h1>x</h1><span>b</span><span>c</span></a></div>')
-      expect(asString rule.render()).to.be.eql asString makeNode('<div><a><span>a</span><h1>x</h1><span>test</span><span>c</span></a></div>')
+    # it "should set the contents of a complex selection", ->
+    #   rule = new Rule
+    #     'a span:nth-of-type(2)': 'test',
+    #     makeNode('<div><a><span>a</span><h1>x</h1><span>b</span><span>c</span></a></div>')
+    #   expect(asString rule.render()).to.be.eql asString makeNode('<div><a><span>a</span><h1>x</h1><span>test</span><span>c</span></a></div>')
     # Multiple Selections
     it "should set the contents of multiple selections", ->
       rule = new Rule
@@ -318,11 +318,11 @@ describe 'Rule', ->
         'span@class': 'test',
         makeNode('<div><span></span></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><span class="test"></span></div>')
-    it "should set the attributes of a complex selection", ->
-      rule = new Rule
-        'a span:nth-of-type(2)@class': 'test',
-        makeNode('<div><a><span>a</span><h1>x</h1><span>b</span><span>c</span></a></div>')
-      expect(asString rule.render()).to.be.eql asString makeNode('<div><a><span>a</span><h1>x</h1><span class="test">b</span><span>c</span></a></div>')
+    # it "should set the attributes of a complex selection", ->
+    #   rule = new Rule
+    #     'a span:nth-of-type(2)@class': 'test',
+    #     makeNode('<div><a><span>a</span><h1>x</h1><span>b</span><span>c</span></a></div>')
+    #   expect(asString rule.render()).to.be.eql asString makeNode('<div><a><span>a</span><h1>x</h1><span class="test">b</span><span>c</span></a></div>')
     it "should alter attributes of multiple selections", ->
       rule = new Rule
         'span@class': 'test'
