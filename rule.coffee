@@ -75,7 +75,7 @@ class Rule
     # and apply changes directly to it.
     # Return undefined in that case so it is not added twice.
     else if rule instanceof Rule
-      if rule.template?
+      if rule.hasOwnProperty 'template'
         rule.render data
       else
         rule.render data, selection
@@ -93,7 +93,8 @@ class Rule
     # If the object does not have a custom toString
     # create a new rule from the object
     else if Object::isPrototypeOf rule
-      @parse (new Rule rule), data, selection, context
+      newRule = (new @ rule)
+      @parse.call @, newRule, data, selection, context
 
   # Add a content object to an array of selection or attributes
   # of the selections at the position specified

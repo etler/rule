@@ -505,5 +505,13 @@ describe 'Rule', ->
         '.test2': 'test'
         makeNode('<div><span class="test"></span><span class="test2"></span></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><span class="test">class</span><span class="test2">test</span></div>')
-
-
+    it "should extend the Rule class with a custom preparser and use that preparser when a new rule is created from a rule object", ->
+      class Test extends Rule
+      Test.preparse = (rule, data, selection, context) ->
+        if typeof rule is 'string' or rule instanceof String
+          return rule+'suffix'
+      rule = new Test
+        '.test':
+          '': 'X'
+        makeNode('<div><span class="test"></span></div>')
+      expect(asString rule.render()).to.be.eql asString makeNode('<div><span class="test">Xsuffix</span></div>')
