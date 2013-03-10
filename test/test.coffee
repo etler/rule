@@ -360,6 +360,13 @@ describe 'Rule', ->
           '': 'c',
         makeNode('<div><a>b</a></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div></div>')
+    it "should not remove a selection then add to it", ->
+      rule = new Rule
+        'a':
+          '=': null
+          '': 'c',
+        makeNode('<div><a>b</a></div>')
+      expect(asString rule.render()).to.be.eql asString makeNode('<div><a>c</a></div>')
     it "should remove a selection then attempt to add an attribute to it", ->
       rule = new Rule
         'a':

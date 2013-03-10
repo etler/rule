@@ -42,7 +42,7 @@ class Rule
         result = @constructor.add (@constructor.parse.bind @constructor, rule, data, selection, @), selection, attribute, position
         # If we are manipulating the parent and siblings update scope and
         # parent to reflect change in top level structure
-        if !selector?
+        if !selector? and result.length
           scope.splice (indexOf.call scope, subparent), 1, result...
           parent.splice (indexOf.call parent, subparent), 1, result... if position is '='
     return scope
