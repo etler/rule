@@ -439,6 +439,15 @@ describe 'Rule', ->
         template:
           makeNode('<div></div>')
       expect(asString (new Test).render()).to.be.eql asString makeNode('<div>test</div>')
+    it "should extend the Rule class while providing a rule property", ->
+      class Test extends Rule
+        rule:
+          '': 'test'
+        template:
+          makeNode('<div></div>')
+      test = new Test
+        '>': 'test2'
+      expect(asString test.render()).to.be.eql asString makeNode('<div>test2</div>')
     it "should extend the Rule class then set the contents of a nested element", ->
       class Test extends Rule
         rule:

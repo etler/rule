@@ -23,7 +23,11 @@ class Rule
     # scope is used to encapsulate any content added outside of the parent
     # parent array is duplicated
     scope = parent[0..]
-    rules = combineRules @
+    # If the object property 'rule' is set, do not use the inherited rules
+    if @hasOwnProperty 'rule'
+      rules = @rule
+    else
+      rules = combineRules @
     for key, rule of rules
       # Apply each rule to each parent object.
       # Applied to a copy of parent because parent may change during application
