@@ -43,7 +43,9 @@ class Rule
         else
           selection = [subparent]
         # Add will return the selection and sibling elements
-        result = @constructor.add (@constructor.parse.bind @constructor, rule, data, selection, @), selection, attribute, position
+        generator = (selection) =>
+          @constructor.parse rule, data, selection, @
+        result = @constructor.add generator, selection, attribute, position
         # If we are manipulating the parent and siblings update scope and
         # parent to reflect change in top level structure
         if !selector? and result.length
@@ -111,7 +113,7 @@ class Rule
       # will not be overwritten
       generator = ((value) -> value).bind(@, generator)
     for selection in selections
-      content = do generator
+      content = generator selection
       # Nothing to do here
       continue unless content? and selection instanceof @env.Element
       # Attribute is specified, so modify attribute
