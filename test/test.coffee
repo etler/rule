@@ -49,7 +49,7 @@ describe 'Rule', ->
       rule = new Rule
         '.a': ->@
       selection = makeNode '<div><span class="a"></div>'
-      Rule.parse rule, 'b', selection
+      Rule.parse rule, 'b', selection: selection
       expect(asString selection).to.be.equal asString makeNode '<div><span class="a">b</div>'
       selection = makeNode '<div><span class="a"></div>'
       rule.template = selection
@@ -81,7 +81,7 @@ describe 'Rule', ->
       rule =
         '.a': ->@
       selection = makeNode '<div><span class="a"></div>'
-      Rule.parse rule, 'b', selection
+      Rule.parse rule, 'b', selection: selection
       expect(asString selection).to.be.eql asString makeNode '<div><span class="a">b</div>'
   describe '::add', ->
     it "should prepend the attribute with content", ->

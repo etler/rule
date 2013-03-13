@@ -43,8 +43,8 @@ class Rule
         else
           selection = [subparent]
         # Add will return the selection and sibling elements
-        generator = (selection) =>
-          @constructor.parse rule, data, selection, @
+        generator = (selector) =>
+          @constructor.parse rule, data, selector, @
         result = @constructor.add generator, selection, attribute, position
         # If we are manipulating the parent and siblings update scope and
         # parent to reflect change in top level structure
@@ -60,31 +60,31 @@ class Rule
   @preparse: ->
 
   # Parse the rule to get the content object
-  @parse: (rule, data, selection, context) ->
+  @parse: (rule, data, selector, context) ->
     # Call the preparse function before the build in parsing to
     # allow for user defined data type results
-    preparsedResult = (@preparse rule, data, selection, context)
+    preparsedResult = (@preparse rule, data, selector, context)
     # If statments are used throughout instead of switches
     # because they compile to smaller javascript
     if preparsedResult?
       return preparsedResult
-    # Bind the function to the data and current selection and parse its results
+    # Bind the function to the data and current selector and parse its results
     else if rule instanceof Function
-      @parse (rule.call data, selection, context), data, selection, context
+      @parse (rule.call data, selector, context), data, selector, context
     # Parse each item in the array and return a flat array
     else if rule instanceof Array
       result = []
-      result = result.concat (@parse item, data, selection, context) for item in rule
+      result = result.concat (@parse item, data, selector, context) for item in rule
       return result
     # Pass the data to the rule object, if the rule object
-    # does not have a template then use the current selection
+    # does not have a template then use the current selector
     # and apply changes directly to it.
     # Return undefined in that case so it is not added twice.
     else if rule instanceof Rule
       if rule.hasOwnProperty 'template'
         rule.render data
       else
-        rule.render data, selection
+        rule.render data, selector.selection
         return undefined
     # Return objects that can be added to the dom directly as is
     # If null or undefined return as is to be ignored
@@ -100,7 +100,7 @@ class Rule
     # create a new rule from the object
     else if Object::isPrototypeOf rule
       newRule = (new @ rule)
-      @parse.call @, newRule, data, selection, context
+      @parse.call @, newRule, data, selector, context
 
   # Add a content object to an array of selection or attributes
   # of the selections at the position specified
@@ -113,7 +113,10 @@ class Rule
       # will not be overwritten
       generator = ((value) -> value).bind(@, generator)
     for selection in selections
-      content = generator selection
+      content = generator
+        selection: selection
+        attribute: attribute
+        position: position
       # Nothing to do here
       continue unless content? and selection instanceof @env.Element
       # Attribute is specified, so modify attribute
