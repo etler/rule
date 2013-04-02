@@ -236,7 +236,7 @@ class Rule
 # In node module is defined within the global closure,
 # but 'this' is an empty object
 if module? and @module isnt module
-  exports.Rule = Rule
+  module.exports = Rule
 else
   window.Rule = Rule
 

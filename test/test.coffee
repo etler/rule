@@ -17,7 +17,7 @@ describe 'Rule', ->
       object.outerHTML
   before (done) ->
     if module? and @module isnt module
-      Rule = require('../rule').Rule
+      Rule = require('../rule')
       expect = require('expect.js')
       window = require('sub').window
       document = window.document
