@@ -160,6 +160,12 @@ describe 'Rule', ->
         '': 'test'
       expect(asString rule.render {}, template).to.be.eql asString makeNode('<div>test</div>')
       expect(template).to.be.equal template
+    it "should execute a template function and render on that generated template", ->
+      template = -> makeNode('<div>')
+      rule = new Rule
+        '': 'test'
+      expect(asString rule.render {}, template).to.be.eql asString makeNode('<div>test</div>')
+      expect(template).to.be.equal template
     # Attributes
     it "should set the attributes of the parent", ->
       rule = new Rule

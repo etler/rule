@@ -214,6 +214,8 @@ class Rule
     # Using $.fn instead of instanceof $ because zepto does not support latter
     if @env.$?.fn.isPrototypeOf(element)
       element.get()
+    else if element instanceof Function
+      toElementArray do element
     else if element instanceof @env.Node
       [element]
     else element
