@@ -229,6 +229,7 @@ class Rule
     rules = combineRules getPrototypeOf object
     if object.hasOwnProperty 'rule'
       for key, rule of object.rule
+        delete rules[key]
         rules[key] = rule
     return rules
 

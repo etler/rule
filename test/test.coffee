@@ -481,6 +481,17 @@ describe 'Rule', ->
         rule:
           '.test2': 'Y'
       expect(asString (new Test2).render()).to.be.eql asString makeNode('<div><p><span class="test">X</span><span class="test2">Y</span></p></div>')
+    it "should extend an extended Rule, and and overwrite the order of the overwritten rule", ->
+      class Test extends Rule
+        rule:
+          '.test': 'X'
+          '.test2': 'Y'
+        template:
+          makeNode('<div><p><span class="test test2"></span></p></div>')
+      class Test2 extends Test
+        rule:
+          '.test': 'X'
+      expect(asString (new Test2).render()).to.be.eql asString makeNode('<div><p><span class="test test2">X</span></p></div>')
     it "should extend an extended Rule twice, and then apply both rules in order of oldest first", ->
       class Test extends Rule
         rule:
