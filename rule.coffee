@@ -100,6 +100,7 @@ class Rule
     # create a new rule from the object
     else if Object::isPrototypeOf rule
       newRule = (new @ rule)
+      newRule.parent = context
       @parse.call @, newRule, data, selector, context
 
   # Add a content object to an array of selection or attributes
