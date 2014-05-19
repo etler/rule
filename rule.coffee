@@ -1,9 +1,9 @@
-# Rule v0.2.5
+# Rule v0.2.6
 # templating library
 # http://rulejs.com
 # http://github.com/etler/rule
 #
-# Copyright 2013, Tim Etler (tmetler@gmail.com)
+# Copyright 2014, Tim Etler (tmetler@gmail.com)
 # Licensed under the MIT or GPL Version 2 licenses.
 
 class Rule
