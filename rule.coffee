@@ -36,7 +36,9 @@ class Rule
         [selector, attribute, position] = @constructor.split key
         # Empty selector selects the parent as an array
         if selector?
-          if subparent.querySelectorAll?
+          if simpleSelector = toSimpleClass(selector)
+            selection = (element for element in subparent.getElementsByClassName(simpleSelector))
+          else if subparent.querySelectorAll?
             selection = (element for element in subparent.querySelectorAll selector)
           else
             selection = (element for element in querySelectorAll.call subparent, selector)
@@ -220,6 +222,17 @@ class Rule
         delete rules[key]
         rules[key] = rule
     return rules
+  toSimpleClass = (selector) ->
+    inSelector = false
+    if selector[0] isnt '.'
+      return false
+    selector = selector[1..]
+    for character, index in selector
+      if character in [' ', ',', '[', ']', '#', '*', ':', '>', '+', '~', '(', ')']
+        return false
+      else if character is '.'
+        selector = selector.replace '.', ' '
+    return selector
 
 # Test if the javascript environment is node, or the browser
 # In node module is defined within the global closure,

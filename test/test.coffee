@@ -250,13 +250,26 @@ describe 'Rule', ->
         'span': 'x',
         makeNode('<div><a></a></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><a></a></div>')
+
+    it "should set the contents of a simple class selection", ->
+      rule = new Rule
+        '.simple': 'test',
+        makeNode('<div><a><span>a</span><h1>x</h1><span class="simple">b</span><span>c</span></a></div>')
+      expect(asString rule.render()).to.be.eql asString makeNode('<div><a><span>a</span><h1>x</h1><span class="simple">test</span><span>c</span></a></div>')
+
+    it "should set the contents of a simple multi class selection", ->
+      rule = new Rule
+        '.simple.test': 'test',
+        makeNode('<div><a><span>a</span><h1>x</h1><span class="test simple">b</span><span>c</span></a></div>')
+      expect(asString rule.render()).to.be.eql asString makeNode('<div><a><span>a</span><h1>x</h1><span class="test simple">test</span><span>c</span></a></div>')
+
     # it "should set the contents of a complex selection", ->
     #   rule = new Rule
     #     'a span:nth-of-type(2)': 'test',
     #     makeNode('<div><a><span>a</span><h1>x</h1><span>b</span><span>c</span></a></div>')
     #   expect(asString rule.render()).to.be.eql asString makeNode('<div><a><span>a</span><h1>x</h1><span>test</span><span>c</span></a></div>')
-    # Multiple Selections
 
+    # Multiple Selections
     it "should set the contents of multiple selections", ->
       rule = new Rule
         'span': 'test',
@@ -418,6 +431,13 @@ describe 'Rule', ->
       rule = new Rule
         '': {},
         makeNode('<div>')
+      expect(asString rule.render()).to.be.eql asString makeNode('<div></div>')
+
+    it "should remove multiple selections", ->
+      rule = new Rule
+        '.a=': ''
+        makeNode('<div><span class="a">b</span><span class="a">c</span></div>')
+      debugger
       expect(asString rule.render()).to.be.eql asString makeNode('<div></div>')
 
     it "should remove a selection then attempt to add to it", ->
