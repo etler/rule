@@ -653,3 +653,13 @@ describe 'Rule', ->
           '': 'X'
         makeNode('<div><span class="test"></span></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><span class="test">Xsuffix</span></div>')
+
+    it "should fail a rule without crashing", ->
+      rule = new Rule
+        '@class+': -> a.b
+        makeNode('<div>')
+      # Temporarily silence console.error
+      temp = console.error
+      console.error = ->
+      expect(asString rule.render()).to.not.throwError
+      console.error = temp

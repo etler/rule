@@ -46,7 +46,12 @@ class Rule
           selection = [subparent]
         # Add will return the selection and sibling elements
         generator = (selector) =>
-          @constructor.parse rule, data, selector, @
+          # A singular rule failing should not crash the entire program
+          try
+            @constructor.parse rule, data, selector, @
+          catch error
+            console.error "RuleError: #{error.stack.toString()}"
+            return
         result = @constructor.add generator, selection, attribute, position
         # If we are manipulating the parent and siblings update scope and
         # parent to reflect change in top level structure
