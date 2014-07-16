@@ -437,7 +437,6 @@ describe 'Rule', ->
       rule = new Rule
         '.a=': ''
         makeNode('<div><span class="a">b</span><span class="a">c</span></div>')
-      debugger
       expect(asString rule.render()).to.be.eql asString makeNode('<div></div>')
 
     it "should remove a selection then attempt to add to it", ->
