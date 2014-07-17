@@ -50,7 +50,7 @@ class Rule
           try
             @constructor.parse rule, data, selector, @
           catch error
-            console.error "RuleError: #{error.stack.toString()}"
+            console.error "RuleError: #{error}"
             return
         result = @constructor.add generator, selection, attribute, position
         # If we are manipulating the parent and siblings update scope and
