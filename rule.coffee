@@ -15,6 +15,7 @@ class Rule
   # Apply a rule to a cloned template, taking data that is passed to rule functions
   # Optionally takes an element and applies modifications directly to that element
   render: (data, parent) ->
+    env = @constructor.env or Rule.env
     # Insures optional passed in parent element is an array of Nodes
     parent = toElementArray parent
     # Set parent to a copy of the template if it is not already set
@@ -32,7 +33,7 @@ class Rule
       # Apply each rule to each parent object.
       # Applied to a copy of parent because parent may change during application
       for subparent in parent[0..]
-        continue if subparent not instanceof @constructor.env.Element
+        continue if subparent not instanceof env.Element
         [selector, attribute, position] = @constructor.split key
         # Empty selector selects the parent as an array
         if selector?
@@ -62,6 +63,7 @@ class Rule
 
   # Parse the rule to get the content object
   @parse: (rule, data, selector, context) ->
+    env = @constructor.env or Rule.env
     # Bind the function to the data and current selector and parse its results
     if rule instanceof Function
       @parse (rule.call data, selector, context), data, selector, context
@@ -82,10 +84,10 @@ class Rule
         return undefined
     # Return objects that can be added to the dom directly as is
     # If null or undefined return as is to be ignored
-    else if rule instanceof @env.Node or !rule?
+    else if rule instanceof env.Node or !rule?
       rule
     # A helper case for jQuery style objects.
-    else if @env.$?.fn.isPrototypeOf(rule)
+    else if env.$?.fn.isPrototypeOf(rule)
       rule.get()
     # If the object has a custom toString then use it
     else if rule.toString isnt Object::toString
@@ -101,6 +103,7 @@ class Rule
   # of the selections at the position specified
   # Returns the selections and any siblings as an array of Nodes
   @add: (generator, selections, attribute, position) ->
+    env = @constructor.env or Rule.env
     result = []
     # Make sure content generator is always a generator
     if !(generator instanceof Function)
@@ -113,7 +116,7 @@ class Rule
         attribute: attribute
         position: position
       # Nothing to do here
-      continue unless content? and selection instanceof @env.Element
+      continue unless content? and selection instanceof env.Element
       # Attribute is specified, so modify attribute
       if attribute? and content?
         content = content.join('') if content instanceof Array
@@ -147,14 +150,14 @@ class Rule
         for element in content
           # If content is not a DOM Node already, always convert to a TextNode
           element =
-            if !(element instanceof @env.Node) then @env.document.createTextNode element else element
+            if !(element instanceof env.Node) then env.document.createTextNode element else element
           # Add selection either before or after in the right order
           result.push selection if position is '+'
           result.push element
           result.push selection if position is '-'
           # Parent must be an HTMLElement to insure we can add to it
           # We can assume parent is a Node, but not all Nodes can be added too
-          if parent instanceof @env.HTMLElement
+          if parent instanceof env.HTMLElement
             parent.insertBefore element, target
         # If position is =, the old selection must be removed
         parent?.removeChild target if position is '='
@@ -180,8 +183,9 @@ class Rule
        return index
       return -1
   querySelectorAll = ((query) ->
+    env = @constructor.env or Rule.env
     # Hack to support IE8, does not support accessing DOM constructors
-    querySelectorAll = @env.document.createElement('div').querySelectorAll ? (query) -> ((@env.$ @).find query).get()
+    querySelectorAll = env.document.createElement('div').querySelectorAll ? (query) -> ((env.$ @).find query).get()
     querySelectorAll(query)
   ).bind(@)
   # Shim to support IE8, does not support getObjectPrototype
@@ -206,12 +210,13 @@ class Rule
   # Converts a single Node object, or a jQuery style object
   # object to a javascript array of Node objects
   toElementArray = ((element) ->
+    env = @constructor.env or Rule.env
     # Using $.fn instead of instanceof $ because zepto does not support latter
-    if @env.$?.fn.isPrototypeOf(element)
+    if env.$?.fn.isPrototypeOf(element)
       element.get()
     else if element instanceof Function
       toElementArray do element
-    else if element instanceof @env.Node
+    else if element instanceof env.Node
       [element]
     else element
   ).bind(@)
