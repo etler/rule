@@ -8,7 +8,7 @@
   "main" : "./rule.js",
   "repository" :
     { "type" : "git"
-    , "url" : "git@github.com:etler/Rule.git" },
+    , "url" : "git@github.com:etler/rule.git" },
   "dependencies" :
     { "sub" : ">=0.1.7" },
   "devDependencies" :
