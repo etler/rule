@@ -16,6 +16,6 @@
     , "expect.js" : "0.2.0"
     , "mocha" : "1.11.0" },
   "scripts" :
-    { "prepublish" : "./node_modules/coffee-script/bin/cake build"
-    , "test": "cake test" }
+    { "prepublish" : "cake build"
+    , "test": "cake all & mocha" }
 }
