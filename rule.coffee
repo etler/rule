@@ -51,7 +51,8 @@ class Rule
           try
             @constructor.parse rule, data, selector, @
           catch error
-            console.error "RuleError: #{error}"
+            console.error error.stack
+            # If there is an error, we want to skip it, so return undefined
             return
         result = @constructor.add generator, selection, attribute, position
         # If we are manipulating the parent and siblings update scope and
