@@ -37,7 +37,9 @@ class Rule
         [selector, attribute, position] = @constructor.split key
         # Empty selector selects the parent as an array
         if selector?
-          if simpleSelector = toSimpleClass(selector)
+          if simpleSelector = toSimpleTag(selector)
+            selection = (element for element in subparent.getElementsByTagName(simpleSelector))
+          else if simpleSelector = toSimpleClass(selector)
             selection = (element for element in subparent.getElementsByClassName(simpleSelector))
           else if subparent.querySelectorAll?
             selection = (element for element in subparent.querySelectorAll selector)
@@ -233,8 +235,8 @@ class Rule
         delete rules[key]
         rules[key] = rule
     return rules
+
   toSimpleClass = (selector) ->
-    inSelector = false
     if selector[0] isnt '.'
       return false
     selector = selector[1..]
@@ -243,6 +245,17 @@ class Rule
         return false
       else if character is '.'
         selector = selector.replace '.', ' '
+    return selector
+
+  toSimpleTag = (selector) ->
+    firstCharCode = selector.charCodeAt(0)
+    # Valid tag string first char must match [a-zA-Z_]
+    unless 65 <= firstCharCode <= 90 or 97 <= firstCharCode <= 122 or firstCharCode is 95
+      return false
+    for index in [1...selector.length]
+      charCode = selector.charCodeAt(index)
+      unless 65 <= charCode <= 90 or 97 <= charCode <= 122 or 48 <= charCode <= 57 or charCode in [45, 46, 95]
+        return false
     return selector
 
 # Test if the javascript environment is node, or the browser

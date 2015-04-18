@@ -233,13 +233,13 @@ describe 'Rule', ->
       expect(asString rule.render {a: 'test'}).to.be.eql asString makeNode('<div>test</div>')
     # Selections
 
-    it "should set the contents of the selection", ->
+    it "should set the contents of a simple tag selection", ->
       rule = new Rule
         'span': 'test',
         makeNode('<div><span></span></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><span>test</span></div>')
 
-    it "should replace the contents of the selection", ->
+    it "should replace the contents of a simple tag selection", ->
       rule = new Rule
         'span': 'test',
         makeNode('<div><span><a>a</a><a>b</a><a>c</a></span></div>')
