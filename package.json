@@ -6,16 +6,20 @@
   "homepage" : "http://www.rulejs.com",
   "author" : "Tim Etler <tmetler@gmail.com> (http://www.timetler.com)",
   "main" : "./rule.js",
-  "repository" :
-    { "type" : "git"
-    , "url" : "git@github.com:etler/rule.git" },
-  "dependencies" :
-    { "sub" : ">=0.1.7" },
-  "devDependencies" :
-    { "coffee-script" : "1.4.0"
-    , "expect.js" : "0.2.0"
-    , "mocha" : "1.11.0" },
-  "scripts" :
-    { "prepublish" : "cake build"
-    , "test": "cake all & mocha" }
+  "repository" : {
+    "type" : "git",
+    "url" : "git@github.com:etler/rule.git"
+  },
+  "dependencies" : {
+    "sub" : ">=0.1.7"
+  },
+  "devDependencies" : {
+    "coffee-script" : "1.4.0",
+    "expect.js" : "0.2.0",
+    "mocha" : "1.11.0"
+  },
+  "scripts" : {
+    "prepublish" : "cake build",
+    "test": "cake all && mocha"
+  }
 }
