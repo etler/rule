@@ -1,4 +1,4 @@
-# Rule v0.2.8
+# Rule v0.2.11
 # templating library
 # http://rulejs.com
 # http://github.com/etler/rule

@@ -1,6 +1,6 @@
 {
   "name" : "rule",
-  "version" : "v0.2.10",
+  "version" : "v0.2.11",
   "description" : "Coffeescript friendly css selector based templating",
   "keywords" : [ "coffeescript", "template", "templating", "css", "selector", "mapping", "pure", "dom", "manipulation" ],
   "homepage" : "http://www.rulejs.com",
