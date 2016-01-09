@@ -254,7 +254,7 @@ class Rule
       return false
     for index in [1...selector.length]
       charCode = selector.charCodeAt(index)
-      unless 65 <= charCode <= 90 or 97 <= charCode <= 122 or 48 <= charCode <= 57 or charCode in [45, 46, 95]
+      unless 65 <= charCode <= 90 or 97 <= charCode <= 122 or 48 <= charCode <= 57 or charCode in [45, 95]
         return false
     return selector
 

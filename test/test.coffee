@@ -263,6 +263,12 @@ describe 'Rule', ->
         makeNode('<div><a><span>a</span><h1>x</h1><span class="test simple">b</span><span>c</span></a></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><a><span>a</span><h1>x</h1><span class="test simple">test</span><span>c</span></a></div>')
 
+    it "should set the contents of a tag and class selection", ->
+      rule = new Rule
+        'span.simple': 'test',
+        makeNode('<div><a><span>a</span><h1>x</h1><span class="test simple">b</span><span>c</span></a></div>')
+      expect(asString rule.render()).to.be.eql asString makeNode('<div><a><span>a</span><h1>x</h1><span class="test simple">test</span><span>c</span></a></div>')
+
     # it "should set the contents of a complex selection", ->
     #   rule = new Rule
     #     'a span:nth-of-type(2)': 'test',
