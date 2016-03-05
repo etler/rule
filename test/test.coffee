@@ -13,7 +13,7 @@ describe 'Rule', ->
   asString = (object) ->
     container = document.createElement 'div'
     if object instanceof Array
-      container.insertBefore(node.cloneNode(true)) for node in object
+      container.appendChild(node.cloneNode(true)) for node in object
       container.innerHTML
     else
       object.outerHTML
@@ -134,31 +134,31 @@ describe 'Rule', ->
 
     it "should add content as the first child of selection", ->
       c = makeNode('<div>')[0]
-      e = c.insertBefore makeNode('<span>')[0]
-      f = e.insertBefore makeNode('<span>')[0]
+      e = c.appendChild makeNode('<span>')[0]
+      f = e.appendChild makeNode('<span>')[0]
       r = Rule.add 'a', [f], null, '-'
       expect(asString r).to.be.eql asString makeNode('a<span></span>')
       expect(asString c).to.be.eql asString makeNode('<div><span>a<span></span></span></div>')
 
     it "should add content as the last child of selection", ->
       c = makeNode('<div>')[0]
-      e = c.insertBefore makeNode('<span>')[0]
-      f = e.insertBefore makeNode('<span>')[0]
+      e = c.appendChild makeNode('<span>')[0]
+      f = e.appendChild makeNode('<span>')[0]
       r = Rule.add 'a', [f], null, '+'
       expect(asString c).to.be.eql asString makeNode('<div><span><span></span>a</span></div>')
       expect(asString r).to.be.eql asString makeNode('<span></span>a')
 
     it "should set content to replace selection", ->
       c = makeNode('<div>')[0]
-      e = c.insertBefore makeNode('<span>')[0]
+      e = c.appendChild makeNode('<span>')[0]
       r = Rule.add 'a', [e], null, '='
       expect(asString c).to.be.eql asString makeNode('<div>a</div>')
       expect(asString r).to.be.eql 'a'
 
     it "should set content as the only child of selection", ->
       c = makeNode('<div>')[0]
-      e = c.insertBefore makeNode('<span>')[0]
-      f = e.insertBefore makeNode('<span>')[0]
+      e = c.appendChild makeNode('<span>')[0]
+      f = e.appendChild makeNode('<span>')[0]
       r = Rule.add 'a', [e]
       expect(asString c).to.be.eql asString makeNode('<div><span>a</span></div>')
       expect(asString r).to.be.eql asString makeNode('<span>a</span>')
