@@ -37,10 +37,10 @@ class Rule
         [selector, attribute, position] = @constructor.split key
         # Empty selector selects the parent as an array
         if selector?
-          if simpleSelector = toSimpleTag(selector)
-            selection = (element for element in subparent.getElementsByTagName(simpleSelector))
-          else if simpleSelector = toSimpleClass(selector)
+          if simpleSelector = toSimpleClass(selector)
             selection = (element for element in subparent.getElementsByClassName(simpleSelector))
+          else if simpleSelector = toSimpleTag(selector)
+            selection = (element for element in subparent.getElementsByTagName(simpleSelector))
           else if subparent.querySelectorAll?
             selection = (element for element in subparent.querySelectorAll selector)
           else
