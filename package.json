@@ -11,7 +11,7 @@
     "url" : "git@github.com:etler/rule.git"
   },
   "dependencies" : {
-    "sub" : ">=0.1.7"
+    "sub" : "~0.1.12"
   },
   "devDependencies" : {
     "coffee-script" : "1.4.0",
