@@ -8,7 +8,7 @@ describe 'Rule', ->
   makeNode = (string) ->
     container = document.createElement 'div'
     container.innerHTML = string
-    (child for child in container.childNodes)
+    container.childNodes
 
   asString = (object) ->
     container = document.createElement 'div'
@@ -175,8 +175,8 @@ describe 'Rule', ->
       expect(asString r).to.be.eql asString makeNode('<div class="abcd"></div>')
 
   describe '.render', ->
-    # From template and application
 
+    # From template and application
     it "should clone a template and return that object", ->
       template = makeNode('<div>')
       rule = new Rule
@@ -192,14 +192,21 @@ describe 'Rule', ->
       expect(asString rule.render {}, template).to.be.eql asString makeNode('<div>test</div>')
       expect(template).to.be.equal template
 
+    it "should allow text nodes in the template", ->
+      template = makeNode('<div>test<span class="a"></span>test</div>')
+      rule = new Rule
+        '.a': 'test'
+      expect(asString rule.render {}, template).to.be.eql asString makeNode('<div>test<span class="a">test</span>test</div>')
+      expect(template).to.be.equal template
+
     it "should execute a template function and render on that generated template", ->
       template = -> makeNode('<div>')
       rule = new Rule
         '': 'test'
       expect(asString rule.render {}, template).to.be.eql asString makeNode('<div>test</div>')
       expect(template).to.be.equal template
-    # Attributes
 
+    # Attributes
     it "should set the attributes of the parent", ->
       rule = new Rule
         '@class': 'test',
@@ -224,15 +231,15 @@ describe 'Rule', ->
         '@class': 'test',
         makeNode('<div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div class="test"></div>')
-    # Data insertion
 
+    # Data insertion
     it "should set the contents based on a data object", ->
       rule = new Rule
         '': ->@a,
         makeNode('<div>')
       expect(asString rule.render {a: 'test'}).to.be.eql asString makeNode('<div>test</div>')
-    # Selections
 
+    # Selections
     it "should set the contents of a simple tag selection", ->
       rule = new Rule
         'span': 'test',
@@ -257,24 +264,6 @@ describe 'Rule', ->
         makeNode('<div><a><span>a</span><h1>x</h1><span class="simple">b</span><span>c</span></a></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><a><span>a</span><h1>x</h1><span class="simple">test</span><span>c</span></a></div>')
 
-    it "should set the contents of a simple multi class selection", ->
-      rule = new Rule
-        '.simple.test': 'test',
-        makeNode('<div><a><span>a</span><h1>x</h1><span class="test simple">b</span><span>c</span></a></div>')
-      expect(asString rule.render()).to.be.eql asString makeNode('<div><a><span>a</span><h1>x</h1><span class="test simple">test</span><span>c</span></a></div>')
-
-    it "should set the contents of a tag and class selection", ->
-      rule = new Rule
-        'span.simple': 'test',
-        makeNode('<div><a><span>a</span><h1>x</h1><span class="test simple">b</span><span>c</span></a></div>')
-      expect(asString rule.render()).to.be.eql asString makeNode('<div><a><span>a</span><h1>x</h1><span class="test simple">test</span><span>c</span></a></div>')
-
-    # it "should set the contents of a complex selection", ->
-    #   rule = new Rule
-    #     'a span:nth-of-type(2)': 'test',
-    #     makeNode('<div><a><span>a</span><h1>x</h1><span>b</span><span>c</span></a></div>')
-    #   expect(asString rule.render()).to.be.eql asString makeNode('<div><a><span>a</span><h1>x</h1><span>test</span><span>c</span></a></div>')
-
     # Multiple Selections
     it "should set the contents of multiple selections", ->
       rule = new Rule
@@ -287,51 +276,17 @@ describe 'Rule', ->
         'span': 'test',
         makeNode('<div><span></span><a><span></span></a></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><span>test</span><a><span>test</span></a></div>')
+
     # Parent Positioning
-
-    it "should return the template and the content added before and after it", ->
-      rule = new Rule
-        '+': 'test',
-        makeNode('<div>a</div>')
-      expect(asString rule.render()).to.be.eql asString makeNode('<div>a</div>test')
-      rule = new Rule
-        '-': 'test',
-        makeNode('<div>a</div>')
-      expect(asString rule.render()).to.be.eql asString makeNode('test<div>a</div>')
-
     it "should add content in the right order and return the added siblings", ->
       rule = new Rule
-        '+': 'e'
         '': 'c'
         '>': 'd'
         '<': 'b'
-        '-': 'a',
         makeNode('<span>x</span>')
-      expect(asString rule.render()).to.be.eql asString makeNode('a<span>bcd</span>e')
+      expect(asString rule.render()).to.be.eql asString makeNode('<span>bcd</span>')
 
-    it "should add content before and after, then replace the selection", ->
-      rule = new Rule
-        '+': 'c'
-        '-': 'a'
-        '=': 'b',
-        makeNode('<span>x</span>')
-      expect(asString rule.render()).to.be.eql asString makeNode('abc')
-    # Parent Replacement
-
-    it "should replace the root of the template with new content", ->
-      rule = new Rule
-        '=': 'test',
-        makeNode('<div>a</div>')
-      expect(asString rule.render()).to.be.eql asString makeNode('test')
-
-    it "should replace the root of the template with new content and select off it", ->
-      rule = new Rule
-        '=': ->makeNode('<a><span>a</span></a>')[0]
-        'span': 'test',
-        makeNode('<div><a>b</a></div>')
-      expect(asString rule.render()).to.be.eql asString makeNode('<a><span>test</span></a>')
     # Selection Positioning
-
     it "should add content before and after a selection", ->
       rule = new Rule
         'span-': ->makeNode('<a>')[0]
@@ -341,13 +296,6 @@ describe 'Rule', ->
         'span+': ->makeNode('<a>')[0]
         makeNode('<div><span></span></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><span></span><a></a></div>')
-
-    it "should add content after a selection and then select off it", ->
-      rule = new Rule
-        'span+': ->makeNode('<a>')[0]
-        'a': 'test'
-        makeNode('<div><span></span></div>')
-      expect(asString rule.render()).to.be.eql asString makeNode('<div><span></span><a>test</a></div>')
 
     it "should add content to the start and end of a selection", ->
       rule = new Rule
@@ -364,8 +312,8 @@ describe 'Rule', ->
         'span=': ->makeNode('<a>')[0]
         makeNode('<div><span><p></p></span></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><a></a></div>')
-    # Multiple Selection Positioning
 
+    # Multiple Selection Positioning
     it "should add content before and after multiple selections", ->
       rule = new Rule
         'span-': ->makeNode('<a>')[0]
@@ -391,26 +339,21 @@ describe 'Rule', ->
         'span=': ->makeNode('<a>')[0]
         makeNode('<div><span><p></p></span><span><h1></h1></span></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><a></a><a></a></div>')
-    # Selection Attributes
 
+    # Selection Attributes
     it "should alter attributes of a selection", ->
       rule = new Rule
         'span@class': 'test',
         makeNode('<div><span></span></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><span class="test"></span></div>')
-    # it "should set the attributes of a complex selection", ->
-    #   rule = new Rule
-    #     'a span:nth-of-type(2)@class': 'test',
-    #     makeNode('<div><a><span>a</span><h1>x</h1><span>b</span><span>c</span></a></div>')
-    #   expect(asString rule.render()).to.be.eql asString makeNode('<div><a><span>a</span><h1>x</h1><span class="test">b</span><span>c</span></a></div>')
 
     it "should alter attributes of multiple selections", ->
       rule = new Rule
         'span@class': 'test'
         makeNode('<div><span></span><span></span></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><span class="test"></span><span class="test"></span></div>')
-    # Sub Rules
 
+    # Sub Rules
     it "should select into a new scope and apply a new rule object to it", ->
       rule = new Rule
         'a':
@@ -424,14 +367,6 @@ describe 'Rule', ->
           'div': 'c',
         makeNode('<div><a><span>b</span></a><div></div></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><a><span>b</span></a><div></div></div>')
-
-    it "should select into a new scope, replace it, then select off of it", ->
-      rule = new Rule
-        'a':
-          '=': ->makeNode('<span>')[0]
-        'span': 'b',
-        makeNode('<div><a>b</a></div>')
-      expect(asString rule.render()).to.be.eql asString makeNode('<div><span>b</span></div>')
 
     it "should select into a new scope and do nothing", ->
       rule = new Rule
@@ -477,14 +412,6 @@ describe 'Rule', ->
         makeNode('<div><a><span></span></a></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div></div>')
 
-    it "should replace a selection then add to it", ->
-      rule = new Rule
-        'a':
-          '=': ->makeNode('<span>')[0]
-          '': 'c',
-        makeNode('<div><a>b</a></div>')
-      expect(asString rule.render()).to.be.eql asString makeNode('<div><span>c</span></div>')
-
     it "should add a sibling to a selection then add to the root", ->
       rule = new Rule
         'a':
@@ -492,8 +419,8 @@ describe 'Rule', ->
           '': 'c'
         makeNode('<div><a>b</a></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><a>c</a><a></a></div>')
-    # Arrays
 
+    # Arrays
     it "should set the contents to the result of an array of functions", ->
       rule = new Rule
         'span': [(->@a), (->@b), (->@c)],
@@ -505,37 +432,8 @@ describe 'Rule', ->
         'span': -> ((i)->i*@x).bind(@, i) for i in [1...5],
         makeNode('<div><span></span></div>')
       expect(asString rule.render {x: 2}).to.be.eql asString makeNode('<div><span>2468</span></div>')
-    # Array of parents
 
-    it "should append before each element in the parent array", ->
-      rule = new Rule
-        '-': ->makeNode('<a>')[0]
-        makeNode('<div></div><div></div><div></div>')
-      expect(asString rule.render()).to.be.eql asString makeNode('<a></a><div></div><a></a><div></div><a></a><div></div>')
-
-    it "should append before each element in the parent array then replace each parent element with new content", ->
-      rule = new Rule
-        '-': ->makeNode('<a>')[0]
-        '=': ->makeNode('<div>')[0]
-        makeNode('<span></span><span></span><span></span>')
-      expect(asString rule.render()).to.be.eql asString makeNode('<a></a><div></div><a></a><div></div><a></a><div></div>')
-
-    it "should take array, append before, replace with array, then append after", ->
-      rule = new Rule
-        '-': ->makeNode('<a>')[0]
-        '=': [(->makeNode('<div>')[0]), (->makeNode('<div>')[0])]
-        '+': ->makeNode('<p>')[0]
-        makeNode('<span></span><span></span>')
-      expect(asString rule.render()).to.be.eql asString makeNode('<a></a><div></div><p></p><div></div><p></p><a></a><div></div><p></p><div></div><p></p>')
-
-    it "should take array, append before, replace with new nodes, then append after", ->
-      rule = new Rule
-        '-': ->makeNode('<a>')[0]
-        '=': ->makeNode('<div></div><div></div>')
-        '+': ->makeNode('<p>')[0]
-        makeNode('<span></span><span></span>')
-      expect(asString rule.render()).to.be.eql asString makeNode('<a></a><div></div><p></p><div></div><p></p><a></a><div></div><p></p><div></div><p></p>')
-
+    # Class extension
     it "should extend the Rule class then render off it", ->
       class Test extends Rule
         rule:

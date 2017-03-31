@@ -16,53 +16,40 @@ class Rule
   # Optionally takes an element and applies modifications directly to that element
   render: (data, parent) ->
     env = @constructor.env or Rule.env
-    # Insures optional passed in parent element is an array of Nodes
-    parent = toElementArray parent
     # Set parent to a copy of the template if it is not already set
-    if !parent
-      parent = (subparent.cloneNode true for subparent in toElementArray @template)
-    # scope is used to encapsulate any content added outside of the parent
-    # parent array is duplicated
-    scope = parent[0..]
+    # Normalize to ensure parent is a DOM Element
+    if parent
+      parent = normalizeElement(parent)
+    else
+      parent = normalizeElement(@template).cloneNode(true)
+    # Pre-calculate classes to dictionary for fast lookup
+    lookup = splatify(parent, {}, @debug)
     # If the object property 'rule' is set, do not use the inherited rules
     if @hasOwnProperty 'rule'
       rules = @rule
     else
       rules = combineRules @
     for key, rule of rules
-      # Apply each rule to each parent object.
-      # Applied to a copy of parent because parent may change during application
-      for subparent in parent[0..]
-        continue if subparent not instanceof env.Element
-        [selector, attribute, position] = @constructor.split key
-        # Empty selector selects the parent as an array
-        if selector?
-          if simpleSelector = toSimpleClass(selector)
-            selection = (element for element in subparent.getElementsByClassName(simpleSelector))
-          else if simpleSelector = toSimpleTag(selector)
-            selection = (element for element in subparent.getElementsByTagName(simpleSelector))
-          else if subparent.querySelectorAll?
-            selection = (element for element in subparent.querySelectorAll selector)
-          else
-            selection = (element for element in querySelectorAll.call subparent, selector)
-        else
-          selection = [subparent]
-        # Add will return the selection and sibling elements
-        generator = (selector) =>
-          # A singular rule failing should not crash the entire program
-          try
-            @constructor.parse rule, data, selector, @
-          catch error
-            console.error 'RuleError: ', error.stack
-            # If there is an error, we want to skip it, so return undefined
-            return
-        result = @constructor.add generator, selection, attribute, position
-        # If we are manipulating the parent and siblings update scope and
-        # parent to reflect change in top level structure
-        if !selector? and result.length
-          scope.splice (indexOf.call scope, subparent), 1, result...
-          parent.splice (indexOf.call parent, subparent), 1, result... if position is '='
-    return scope
+      # Apply each rule to the parent object.
+      [selector, attribute, position] = @constructor.split key
+      # Empty selector selects the parent as an array
+      if selector and selector[0] not in ['#', '.']
+        selector = selector.toUpperCase()
+      if selector
+        selection = lookup[selector] or []
+      else
+        selection = [parent]
+      # Add will return the selection and sibling elements
+      generator = (selector) =>
+        # A singular rule failing should not crash the entire program
+        try
+          @constructor.parse rule, data, selector, @
+        catch error
+          console.error 'RuleError: ', error.stack
+          # If there is an error, we want to skip it, so return undefined
+          return
+      result = @constructor.add generator, selection, attribute, position
+    return parent
 
   # Parse the rule to get the content object
   @parse: (rule, data, selector, context) ->
@@ -185,12 +172,14 @@ class Rule
       if index of @ and value is item
        return index
       return -1
+
   querySelectorAll = ((query) ->
     env = @constructor.env or Rule.env
     # Hack to support IE8, does not support accessing DOM constructors
     querySelectorAll = env.document.createElement('div').querySelectorAll ? (query) -> ((env.$ @).find query).get()
     querySelectorAll(query)
   ).bind(@)
+
   # Shim to support IE8, does not support getObjectPrototype
   getPrototypeOf = Object.getPrototypeOf ? (object) ->
     prototype = object.constructor.prototype
@@ -210,18 +199,20 @@ class Rule
       prototype = object.constructor.prototype
       object.constructor = constructor
     return prototype
+
   # Converts a single Node object, or a jQuery style object
-  # object to a javascript array of Node objects
-  toElementArray = ((element) ->
+  # object to a javascript Node object
+  normalizeElement = ((element) ->
     env = @constructor.env or Rule.env
     # Using $.fn instead of instanceof $ because zepto does not support latter
     if env.$?.fn.isPrototypeOf(element)
-      element.get()
+      element.get(0)
     else if element instanceof Function
-      toElementArray do element
-    else if element instanceof env.Node
-      [element]
-    else element
+      normalizeElement do element
+    else if element[0]
+      element[0]
+    else
+      element
   ).bind(@)
 
   # A recursive function to combine all prototype rules so they are
@@ -236,29 +227,35 @@ class Rule
         rules[key] = rule
     return rules
 
-  toSimpleClass = (selector) ->
-    if selector[0] isnt '.'
-      return false
-    selector = selector[1..]
-    for character, index in selector
-      if character in [' ', ',', '[', ']', '#', '*', ':', '>', '+', '~', '(', ')']
-        return false
-      else if character is '.'
-        selector = selector.replace '.', ' '
-    return selector
+  # Convert an element tree into a dictionary of classes that reference the
+  # child elements within the tree
+  splatify = (element, hash = {}, debug) ->
+    child = element.firstElementChild
+    while (child)
+      # If no class name you can skip setting up the dictionary
+      if child.className isnt ''
+        for elementKey in child.className.split(' ')
+          elementKey = '.' + elementKey
+          # Check existing dictionary array
+          elementArray = hash[elementKey] ? hash[elementKey] = []
+          # Push is used for speed
+          elementArray.push(child)
+      # Index id
+      if (child.id isnt '')
+        elementKey = '#' + child.id
+        elementArray = hash[elementKey] ? hash[elementKey] = []
+        elementArray.push(child)
+      # Index tag names
+      elementKey = child.tagName
+      elementArray = hash[elementKey] ? hash[elementKey] = []
+      elementArray.push(child)
+      # Recurse
+      splatify(child, hash, debug)
+      # Use nextElementSibling for browser speed optimization
+      child = child.nextElementSibling
+    return hash
 
-  toSimpleTag = (selector) ->
-    firstCharCode = selector.charCodeAt(0)
-    # Valid tag string first char must match [a-zA-Z_]
-    unless 65 <= firstCharCode <= 90 or 97 <= firstCharCode <= 122 or firstCharCode is 95
-      return false
-    for index in [1...selector.length]
-      charCode = selector.charCodeAt(index)
-      unless 65 <= charCode <= 90 or 97 <= charCode <= 122 or 48 <= charCode <= 57 or charCode in [45, 95]
-        return false
-    return selector
-
-# Test if the javascript environment is node, or the browser
+# Check if the javascript environment is node, or the browser
 # In node module is defined within the global closure,
 # but 'this' is an empty object
 if module? and @module isnt module
