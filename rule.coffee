@@ -23,7 +23,7 @@ class Rule
     else
       parent = normalizeElement(@template).cloneNode(true)
     # Pre-calculate classes to dictionary for fast lookup
-    lookup = splatify(parent, {}, @debug)
+    lookup = splatify(parent, {})
     # If the object property 'rule' is set, do not use the inherited rules
     if @hasOwnProperty 'rule'
       rules = @rule
@@ -32,11 +32,19 @@ class Rule
     for key, rule of rules
       # Apply each rule to the parent object.
       [selector, attribute, position] = @constructor.split key
-      # Empty selector selects the parent as an array
+      # Lookup tag names are stored as uppercase strings
       if selector and selector[0] not in ['#', '.']
         selector = selector.toUpperCase()
+      # Match selector string to css lookup table
       if selector
         selection = lookup[selector] or []
+        # Need to iterate backwards so splice does not invalidate array bounds
+        for index in [selection.length - 1..0] by -1
+          value = selection[index]
+          # Remove child from selection if it was removed
+          if not isChildOf(parent, value)
+            selection.splice(index, 1)
+      # Empty selector selects the parent as an array
       else
         selection = [parent]
       # Add will return the selection and sibling elements
@@ -229,7 +237,7 @@ class Rule
 
   # Convert an element tree into a dictionary of classes that reference the
   # child elements within the tree
-  splatify = (element, hash = {}, debug) ->
+  splatify = (element, hash = {}) ->
     child = element.firstElementChild
     while (child)
       # If no class name you can skip setting up the dictionary
@@ -250,10 +258,16 @@ class Rule
       elementArray = hash[elementKey] ? hash[elementKey] = []
       elementArray.push(child)
       # Recurse
-      splatify(child, hash, debug)
+      splatify(child, hash)
       # Use nextElementSibling for browser speed optimization
       child = child.nextElementSibling
     return hash
+
+  isChildOf = (parent, child) ->
+    nextParent = child
+    while nextParent = nextParent.parentElement
+      return true if nextParent is parent
+    return false
 
 # Check if the javascript environment is node, or the browser
 # In node module is defined within the global closure,

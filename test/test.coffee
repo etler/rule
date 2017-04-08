@@ -313,6 +313,31 @@ describe 'Rule', ->
         makeNode('<div><span><p></p></span></div>')
       expect(asString rule.render()).to.be.eql asString makeNode('<div><a></a></div>')
 
+    it "should remove multiple selections", ->
+      rule = new Rule
+        'span=': ->''
+        'span': ->'hi'
+        makeNode('<div><span><p>test</p></span><span><h1>title</h1></span><span><a>link</a></span></div>')
+      expect(asString rule.render()).to.be.eql asString makeNode('<div></div>')
+
+    it "should replace a selection and not match again", ->
+      pRan = false
+      rule = new Rule
+        'span=': ->''
+        'span': -> pRan = true
+        makeNode('<div><span><p></p></span></div>')
+      rule.render()
+      expect(pRan).to.be.eql(false)
+
+    it "should replace a selection and not execute replaced match", ->
+      pRan = false
+      rule = new Rule
+        'span=': ->makeNode('<a>')[0]
+        'p': -> pRan = true
+        makeNode('<div><span><p></p></span></div>')
+      rule.render()
+      expect(pRan).to.be.eql(false)
+
     # Multiple Selection Positioning
     it "should add content before and after multiple selections", ->
       rule = new Rule
