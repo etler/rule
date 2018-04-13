@@ -241,8 +241,8 @@ class Rule
     child = element.firstElementChild
     while (child)
       # If no class name you can skip setting up the dictionary
-      if child.className isnt ''
-        for elementKey in child.className.split(' ')
+      if child.getAttribute('class') isnt ''
+        for elementKey in child.getAttribute('class').split(' ')
           elementKey = '.' + elementKey
           # Check existing dictionary array
           elementArray = hash[elementKey] ? hash[elementKey] = []
