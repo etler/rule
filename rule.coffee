@@ -254,7 +254,7 @@ class Rule
         elementArray = hash[elementKey] ? hash[elementKey] = []
         elementArray.push(child)
       # Index tag names
-      elementKey = child.tagName
+      elementKey = child.tagName.toUpperCase()
       elementArray = hash[elementKey] ? hash[elementKey] = []
       elementArray.push(child)
       # Recurse
