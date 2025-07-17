@@ -340,3 +340,6 @@ Here is a minified gzipped size comparison to some other client side templating 
 Thanks
 ------
 Thanks to [Pure](http://beebole.com/pure/) for providing the inspiration.
+
+## License
+MIT
